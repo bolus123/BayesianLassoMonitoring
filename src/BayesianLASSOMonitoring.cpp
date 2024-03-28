@@ -2578,7 +2578,7 @@ double updateSigma2X(arma::mat resi, arma::mat phi, arma::mat beta,
   arma::mat tCoefVarCoef; 
   double tmptCoefVarCoef;
   
-  double tmpa = (T - q) / 2.0 + a;
+  double tmpa = T / 2.0 + a;
   double tmpb = tmptResiResi / 2.0 + b;
   
   
@@ -2789,9 +2789,6 @@ Rcpp::List updateTauGammaX(arma::colvec Y, arma::mat X_, arma::colvec Phi, arma:
     zetanot = updateResi(zetanot, Phi, q);
     zetat = updateResi(zetat, Phi, q);
     
-    zetanot.shed_rows(0, q - 1);
-    zetat.shed_rows(0, q - 1);
-    
     //Rcpp::Rcout << "resizetanot:" << zetanot << std::endl;
     //Rcpp::Rcout << "resizetat:" << zetat << std::endl;
     
@@ -2823,8 +2820,6 @@ Rcpp::List updateTauGammaX(arma::colvec Y, arma::mat X_, arma::colvec Phi, arma:
     if (Tau(jj) == 1) {
       
       tmpHt = updateResi(Ht, Phi, q);
-      
-      tmpHt.shed_rows(0, q - 1);
       
       //#update Gamma
       tmptHtHt = tmpHt.t() * tmpHt;
@@ -3328,15 +3323,10 @@ Rcpp::List GibbsRFLSMXUpdatecpp(arma::colvec Y, Rcpp::List pars, Rcpp::List bset
   
   double mu0hat;
   
-  //Rcpp::Rcout << 1 << std::endl;
-  
   /////////////////////////////////////   
   // update Phi
   tmpResiY = Y - Mu;
   tmpResiX = getV(tmpResiY, phiq);
-  
-  tmpResiY.shed_rows(0, phiq - 1);
-  tmpResiX.shed_rows(0, phiq - 1);
   
   Phi = updateCoef(tmpResiY, tmpResiX, 
                    phiA, Phi, 
@@ -3345,8 +3335,6 @@ Rcpp::List GibbsRFLSMXUpdatecpp(arma::colvec Y, Rcpp::List pars, Rcpp::List bset
                    phimono, method);
   
   coef.rows(0, phiq - 1) = Phi;
-  
-  //Rcpp::Rcout << 2 << std::endl;
   
   // update beta
   if (Xflg == 1) {
@@ -3357,9 +3345,6 @@ Rcpp::List GibbsRFLSMXUpdatecpp(arma::colvec Y, Rcpp::List pars, Rcpp::List bset
     tmpResiY = updateResi(tmpResiY, Phi, phiq);
     tmpResiX = updateResi(X_, Phi, phiq);
     
-    tmpResiY.shed_rows(0, phiq - 1);
-    tmpResiX.shed_rows(0, phiq - 1);
-    
     Beta = updateCoef(tmpResiY, tmpResiX, 
                       betaA, Beta, 
                       sigma2, invbetaeta2mat, 
@@ -3369,7 +3354,6 @@ Rcpp::List GibbsRFLSMXUpdatecpp(arma::colvec Y, Rcpp::List pars, Rcpp::List bset
     coef.rows(phiq, phiq + p - 1) = Beta;
   }
   
-  //Rcpp::Rcout << 3 << std::endl;
   
   // update Tau and Gamma
   if (Hflg == 1) {
@@ -3404,7 +3388,6 @@ Rcpp::List GibbsRFLSMXUpdatecpp(arma::colvec Y, Rcpp::List pars, Rcpp::List bset
     
   }
   
-  //Rcpp::Rcout << 4 << std::endl;
   
   // update mu0
   tmpResiY = Y;
@@ -3415,13 +3398,10 @@ Rcpp::List GibbsRFLSMXUpdatecpp(arma::colvec Y, Rcpp::List pars, Rcpp::List bset
     tmpResiY = tmpResiY - H_ * (Tau % Gamma);
   }
   tmpResiY = updateResi(tmpResiY, Phi, phiq);
+  mu0hat = arma::accu(tmpResiY) / (T + 0.0);
+  mu0 = R::rnorm(mu0hat, sqrt(sigma2 / (T + 0.0)));
   
-  tmpResiY.shed_rows(0, phiq - 1);
   
-  mu0hat = arma::accu(tmpResiY) / (T - phiq + 0.0);
-  mu0 = R::rnorm(mu0hat, sqrt(sigma2 / (T - phiq + 0.0)));
-  
-  //Rcpp::Rcout << 5 << std::endl;
   // update Mu
   
   Mu = mu0 * One;
@@ -3433,8 +3413,6 @@ Rcpp::List GibbsRFLSMXUpdatecpp(arma::colvec Y, Rcpp::List pars, Rcpp::List bset
   if (Xflg == 1) {
     Mu = Mu + X_ * Beta;
   }
-  
-  //Rcpp::Rcout << 6 << std::endl;
   
   
   // update sigma2
@@ -3462,16 +3440,12 @@ Rcpp::List GibbsRFLSMXUpdatecpp(arma::colvec Y, Rcpp::List pars, Rcpp::List bset
   
   tmpResiY = Y - Mu;
   tmpResiY = updateResi(tmpResiY, Phi, phiq);
-  
-  tmpResiY.shed_rows(0, phiq - 1);
-  
   sigma2 = updateSigma2X(tmpResiY, Phi, Beta, 
                          invphieta2mat, invbetaeta2mat, 
                          T, phiq, p, 
                          phiA, betaA, sigma2a, sigma2b, 
                          method, Xflg);
   
-  //Rcpp::Rcout << 7 << std::endl;
   
   // update lambda2
   
@@ -3481,8 +3455,6 @@ Rcpp::List GibbsRFLSMXUpdatecpp(arma::colvec Y, Rcpp::List pars, Rcpp::List bset
     }
     
   }
-  
-  //Rcpp::Rcout << 8 << std::endl;
   
   /////////////////////////////////////   
   // output the result
@@ -3781,17 +3753,18 @@ double llYZt(arma::colvec YZ, arma::mat Phi,arma::mat Mu,
   
 }
 
-double llf(arma::colvec resi, arma::colvec YZ, double sigma2, double theta, int q){
+double llf(arma::colvec resi, arma::colvec YZ, double sigma2, double theta){
   
   int T = YZ.n_rows;
-  double tmp = 0; 
+  arma::colvec tmp(T); 
   
-  for (int i = q; i < T; i++) {
-    tmp = tmp + R::dnorm4(resi(i), 0.0, sqrt(sigma2), 1) + 
+  for (int i = 0; i < T; i++) {
+    tmp(i) = R::dnorm4(resi(i), 0.0, sqrt(sigma2), 1) + 
       (theta - 1.0) * sign(YZ(i)) * log(abs(YZ(i)) + 1.0);
   }
   
-  return(tmp);
+  double out = arma::accu(tmp);
+  return(out);
   
 } 
 
@@ -3811,7 +3784,7 @@ double updateYZt(arma::colvec YZ,
   //Rcpp::Rcout << "oldresi:" << oldresi  << std::endl;
   //Rcpp::Rcout << "oldYZ:" << oldYZ  << std::endl;
   
-  double oldll = llf(oldresi, oldYZ, sigma2, theta, q);
+  double oldll = llf(oldresi, oldYZ, sigma2, theta);
   
   //Rcpp::Rcout << "oldll:" << oldll  << std::endl;
   
@@ -3846,7 +3819,7 @@ double updateYZt(arma::colvec YZ,
     resias = newYZyj - Mu;
     resias = updateResi(resias, Phi, q); 
     
-    newll = llf(resias, newYZ, sigma2, theta, q);
+    newll = llf(resias, newYZ, sigma2, theta);
    
     //Rcpp::Rcout << 2.2  << std::endl;
    
@@ -3891,7 +3864,6 @@ arma::mat getYZMHX(arma::colvec Y,arma::mat Phi,arma::mat Mu, double sigma2, dou
                         int burnin, int nsim, double tol) {
   
   int T = Y.n_elem;
-  int q = Phi.n_rows;
   
   arma::mat oldYZ = Y + oldZ;
   arma::mat newYZ = oldYZ;
@@ -3919,7 +3891,7 @@ arma::mat getYZMHX(arma::colvec Y,arma::mat Phi,arma::mat Mu, double sigma2, dou
   //Rcpp::Rcout << 1  << std::endl;
   
     for (i = 0; i < nsim; i++) {
-      for (t = q; t < T; t++) {
+      for (t = 0; t < T; t++) {
         
          if ((rounding == 1) || (leftcensoring == 1)) {
         
@@ -4007,7 +3979,7 @@ double updateZt(arma::colvec Z, arma::colvec Y,
   arma::colvec oldresi = oldYZyj - Mu; 
   oldresi = updateResi(oldresi, Phi, q); 
   
-  double oldll = llf(oldresi, oldYZ, sigma2, theta, q);
+  double oldll = llf(oldresi, oldYZ, sigma2, theta);
   
   arma::colvec newYZ = oldYZ; 
   arma::colvec newYZyj = oldYZyj;
@@ -4045,7 +4017,7 @@ double updateZt(arma::colvec Z, arma::colvec Y,
     resias = newYZyj - Mu;
     resias = updateResi(resias, Phi, q); 
     
-    newll = llf(resias, newYZ, sigma2, theta, q);
+    newll = llf(resias, newYZ, sigma2, theta);
    
     //Rcpp::Rcout << 2.2  << std::endl;
    
@@ -4078,7 +4050,6 @@ arma::mat getZZ(arma::colvec Y, arma::mat Phi,arma::mat Mu, double sigma2, doubl
                         int burnin, int nsim, double tol) {
   
   int T = Y.n_elem;
-  int q = Phi.n_rows;
   
   arma::mat oldYZ = Y + oldZ;
   arma::mat newYZ = oldYZ;
@@ -4466,8 +4437,6 @@ Rcpp::List GibbsRFLSMXcpp(arma::colvec Y,
   Z.zeros();
   /////////////////////////////////////
   
-  //Rcpp::Rcout << 0 << std::endl;
-  
   int tot_num = burnin + nsim * thin;
   int k = 0;
   for (int i = 0; i < tot_num; i++) {
@@ -4507,8 +4476,6 @@ Rcpp::List GibbsRFLSMXcpp(arma::colvec Y,
       YZ = Y;
     }
     
-    //Rcpp::Rcout << 0.1 << std::endl;
-    
     //Rcpp::Rcout << "leftcensoring:" << leftcensoring << std::endl;
     //Rcpp::Rcout << "rounding:" << rounding << std::endl;
     
@@ -4524,8 +4491,6 @@ Rcpp::List GibbsRFLSMXcpp(arma::colvec Y,
     } else {
       Yyj = YZ;
     }
-    
-    //Rcpp::Rcout << 0.2 << std::endl;
     
     //Rcpp::Rcout << "Yyj:" << Yyj << std::endl;
     
