@@ -2575,10 +2575,12 @@ double updateSigma2X(arma::mat resi, arma::mat phi, arma::mat beta,
   arma::mat tResiResi = resi.t() * resi;
   double tmptResiResi = tResiResi(0);
   
+  //Rcpp::Rcout << "tmptResiResi:" << tmptResiResi << std::endl;
+  
   arma::mat tCoefVarCoef; 
   double tmptCoefVarCoef;
   
-  double tmpa = (T - q) / 2.0 + a;
+  double tmpa = (T - q - 1) / 2.0 + a;
   double tmpb = tmptResiResi / 2.0 + b;
   
   
@@ -3338,6 +3340,8 @@ Rcpp::List GibbsRFLSMXUpdatecpp(arma::colvec Y, Rcpp::List pars, Rcpp::List bset
   tmpResiY.shed_rows(0, phiq - 1);
   tmpResiX.shed_rows(0, phiq - 1);
   
+  Rcpp::Rcout  << "Phi:" << Phi << std::endl;
+  
   Phi = updateCoef(tmpResiY, tmpResiX, 
                    phiA, Phi, 
                    sigma2, invphieta2mat, 
@@ -3347,6 +3351,8 @@ Rcpp::List GibbsRFLSMXUpdatecpp(arma::colvec Y, Rcpp::List pars, Rcpp::List bset
   coef.rows(0, phiq - 1) = Phi;
   
   //Rcpp::Rcout << 2 << std::endl;
+  
+  Rcpp::Rcout  << "Beta:" << Beta << std::endl;
   
   // update beta
   if (Xflg == 1) {
@@ -3365,6 +3371,8 @@ Rcpp::List GibbsRFLSMXUpdatecpp(arma::colvec Y, Rcpp::List pars, Rcpp::List bset
                       sigma2, invbetaeta2mat, 
                       phibound0, phiboundqplus1,
                       0, method);
+    
+    //Rcpp::Rcout  << "Beta:" << Beta << std::endl;
     
     coef.rows(phiq, phiq + p - 1) = Beta;
   }
@@ -3455,6 +3463,7 @@ Rcpp::List GibbsRFLSMXUpdatecpp(arma::colvec Y, Rcpp::List pars, Rcpp::List bset
       invbetaeta2 = inveta2.rows(phiq, phiq + p - 1);
       betaeta2 = eta2.rows(phiq, phiq + p - 1);
       invbetaeta2mat.diag() = invbetaeta2;
+      
     }
   }
   
@@ -3466,11 +3475,24 @@ Rcpp::List GibbsRFLSMXUpdatecpp(arma::colvec Y, Rcpp::List pars, Rcpp::List bset
   
   tmpResiY.shed_rows(0, phiq - 1);
   
+  //Rcpp::Rcout << "Phi:" << Phi << std::endl;
+  //Rcpp::Rcout << "betaA:" << betaA << std::endl;
+  //Rcpp::Rcout << "sigma2a:" << sigma2a << std::endl;
+  //Rcpp::Rcout << "sigma2b:" << sigma2b << std::endl;
+  
+  //Rcpp::Rcout << "T:" << T << std::endl;
+  //Rcpp::Rcout << "phiq:" << phiq << std::endl;
+  //Rcpp::Rcout << "p:" << p << std::endl;
+  
+  Rcpp::Rcout  << "sigma2:" << sigma2 << std::endl;
+  
   sigma2 = updateSigma2X(tmpResiY, Phi, Beta, 
                          invphieta2mat, invbetaeta2mat, 
                          T, phiq, p, 
                          phiA, betaA, sigma2a, sigma2b, 
                          method, Xflg);
+  
+  //Rcpp::Rcout << "sigma2:" << sigma2 << std::endl;
   
   //Rcpp::Rcout << 8 << std::endl;
   
@@ -4295,8 +4317,8 @@ Rcpp::List GibbsRFLSMXcpp(arma::colvec Y,
     Yyj = Y;
   }
   
-  //Rcpp::List iter = initGibbsRFLSMXcpp(Yyj, bset, tol, X, H, lambda2);
-  Rcpp::List iter = simpleinitGibbsRFLSMXcpp(Yyj, bset, tol, X, H, lambda2);
+  Rcpp::List iter = initGibbsRFLSMXcpp(Yyj, bset, tol, X, H, lambda2);
+  //Rcpp::List iter = simpleinitGibbsRFLSMXcpp(Yyj, bset, tol, X, H, lambda2);
   
   //Rcpp::Rcout << iter << std::endl;
   
