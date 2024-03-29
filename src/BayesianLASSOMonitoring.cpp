@@ -3813,7 +3813,7 @@ double llf(arma::colvec resi, arma::colvec YZ, double sigma2, double theta){
   arma::colvec tmp(T); 
   
   for (int i = 0; i < T; i++) {
-    tmp(i) = (-1.0) / 2.0 / sigma2 * pow(resi(i), 2.0) + 
+    tmp(i) = R::dnorm4(resi(i), 0, 1, 1) + 
       (theta - 1.0) * sign(YZ(i)) * log(abs(YZ(i)) + 1.0);
   }
   
@@ -3822,7 +3822,7 @@ double llf(arma::colvec resi, arma::colvec YZ, double sigma2, double theta){
   
 } 
 
-double updateYZt(arma::colvec YZ, 
+double updateYZt(arma::colvec YZ, arma::colvec Y,
                 arma::mat Phi,arma::mat Mu, double sigma2, double theta,
                 int t, double lb, double ub, double tol, int burnin) {
   
@@ -3877,8 +3877,8 @@ double updateYZt(arma::colvec YZ,
    
     //Rcpp::Rcout << 2.2  << std::endl;
    
-    pd = newll - log(dtrnorm(newYZ(t), oldYZ(t), 0.1, lb, ub)) - 
-      (oldll - log(dtrnorm(oldYZ(t), newYZ(t), 0.1, lb, ub)));
+    pd = newll + log(dtrnorm(newYZ(t), Y(t), 0.1, lb, ub)) - log(dtrnorm(newYZ(t), oldYZ(t), 0.1, lb, ub)) - 
+      (oldll + log(dtrnorm(oldYZ(t), Y(t), 0.1, lb, ub)) - log(dtrnorm(oldYZ(t), newYZ(t), 0.1, lb, ub)));
     
     pd = exp(pd);
     
@@ -3995,7 +3995,7 @@ arma::mat getYZMHX(arma::colvec Y,arma::mat Phi,arma::mat Mu, double sigma2, dou
               
               //Rcpp::Rcout << 2  << std::endl;
               
-              tmpYZt = updateYZt(newYZ, Phi, Mu, sigma2, theta,
+              tmpYZt = updateYZt(newYZ, Y, Phi, Mu, sigma2, theta,
                 t, lb, ub, tol, burnin);
               
               //Rcpp::Rcout << "t:" << t  << std::endl;
