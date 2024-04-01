@@ -4,20 +4,14 @@
 \alias{Ph1MultipleTesting.Y0tr}
 \title{Bayesian LASSO Phase I Monitoring}
 \usage{
-Ph1MultipleTesting.Y0tr(
-  model,
-  FAP0 = 0.2,
-  side = "right-sided",
-  nsim = 10000,
-  interval = c(1e-06, 0.499999)
-)
+Ph1MultipleTesting.Y0tr(model, nsim = 10000, FAP0 = 0.2, side = "right-sided")
 }
 \arguments{
 \item{model}{is model.}
 
-\item{FAP0}{is}
-
 \item{nsim}{is .}
+
+\item{FAP0}{is}
 
 \item{log}{is model.}
 
