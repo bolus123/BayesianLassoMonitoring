@@ -264,7 +264,7 @@ GibbsRFLSM.ma <- function(Y, w = 7, H = NULL, X = NULL, Y0 = rep(mean(Y), w - 1)
 #' 
 #' result <- GibbsRFLSM(Y, H = H, q = q, nsim = nsim, burnin = burnin)
 #' 
-GibbsRFLSMYJZ <- function(Y, H = NULL, X = NULL, q = 5, 
+GibbsRFLSMXYJZ <- function(Y, H = NULL, X = NULL, q = 5, 
                        A = diag(nrow = q), 
                        a = 0.1, b = 0.1, alpha = 0.1, beta = 0.1, 
                        theta1 = 1, theta2 = 1, xi2 = 0.1,
@@ -275,68 +275,53 @@ GibbsRFLSMYJZ <- function(Y, H = NULL, X = NULL, q = 5,
   
   TT <- length(Y)
   
-  if (is.null(H) && is.null(X)) {
-    model <- GibbsRFLSMYeoJohnsonZcpp(Y, q, 
-                           A, a, b, alpha, beta, 
-                           theta1, theta2, xi2,
-                           method, bound0, boundqplus1,
-                           updateYJ, theta,
-                           updateZ, eps,
-                           nsim, by, burnin,
-                           tol)
-  } else {
-    H1 <- cbind(H, X)
-    model <- GibbsRFLSMYeoJohnsonZcpp(Y, q, 
-                                     A, a, b, alpha, beta, 
-                                     theta1, theta2, xi2,
-                                     method, bound0, boundqplus1,
-                                     updateYJ, theta,
-                                     updateZ, eps,
-                                     nsim, by, burnin,
-                                     tol, NULL, NULL, H1)
-    
-  }
-  
-  if (is.null(H)) {
-    m <- 0
-    Gamma <- NA
-    Tau <- NA
-    pGamma <- NA
-    muGamma <- NA
-    sigma2Gamma <- NA
-  } else {
-    m <- dim(H)[2]
-    Gamma <- model$Gamma[1:m, ]
-    Tau <- model$Tau[1:m, ]
-  }
-  
-  if (is.null(X)) {
-    p <- 0
-    Beta <- NA
-    Kappa <- NA
-    pBeta <- NA
-    muBeta <- NA
-    sigma2Beta <- NA
-  } else {
-    p <- dim(X)[2]
-    Beta <- model$Gamma[(m + 1):(m + p), ]
-    Kappa <- model$Tau[(m + 1):(m + p), ]
-  }
+  q <- bset$q
+  A <- bset$A
+  a <- bset$a
+  b <- bset$b
+  alpha <- bset$alpha
+  beta <- bset$beta
+  theta1 <- bset$theta1
+  theta2 <- bset$theta2
+  xi2 <- bset$xi2
+  method <- bset$method 
+  mono <- bset$mono 
+  bound0 <- bset$bound0
+  boundqplus1 <- bset$boundqplus1
+  updateYJ <- bset$updateYJ
+  theta <- bset$theta 
+  leftcensoring <- bset$leftcensoring
+  rounding <- bset$rounding
+  eps <- bset$eps 
+  nsim <- bset$nsim 
+  thin <- bset$thin 
+  burnin <- bset$burnin 
   
   
+  model <- GibbsRFLSMXYJZcpp(Y, q, A, a, b, alpha, beta, 
+                             theta1, theta2, xi2,
+                             method, mono, bound0, boundqplus1,
+                             updateYJ, theta,
+                             leftcensoring, rounding, eps,
+                             nsim, thin, burnin,
+                             eps, 
+                             NULL,
+                             NULL,
+                             X,
+                             H)
   
   out <- list(
-    "Phi" = matrix(model$Phi, ncol = nsim),
-    "Beta" = matrix(Beta, ncol = nsim),
-    "Kappa" = matrix(Kappa, ncol = nsim),
-    "Gamma" = matrix(Gamma, ncol = nsim),
-    "Tau" = matrix(Tau, ncol = nsim),
+    "Phi" = model$Phi,
+    "Beta" = model$Beta,
+    "Zeta" = model$Zeta,
+    "Gamma" = model$Gamma,
+    "Tau" = model$Tau,
     "sigma2" = model$sigma2,
     "lambda2" = model$lambda2,
     "mu0" = model$mu0,
     "Mu" = model$Mu,
     "theta" = model$theta,
-    "Yyj" = model$Yyj,
+    "Z" = model$Z,
     "H" = H,
     "X" = X,
     "Y" = Y

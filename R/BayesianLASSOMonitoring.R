@@ -446,7 +446,9 @@ Ph1MultipleTesting.Y0tr <- function(model, FAP0 = 0.2, side = "right-sided", nsi
 #' 
 #' 
 #' @export
-Ph1MultipleTesting.Y01 <- function(model, FAP0 = 0.2, side = "right-sided", nsim = 10000, interval = c(0.000001, 0.499999)) {
+Ph1MultipleTesting.Y01 <- function(model, FAP0 = 0.2, side = "right-sided", 
+                                   updateYJ = 1, leftcensoring = 1, rounding = 1, eps = 1e-32,
+                                   nsim = 10000, interval = c(0.000001, 0.499999)) {
   
   root.finding <- function(adj.alpha, ph1mat, FAP0, n, nsim, side = "right-sided") {
     
@@ -484,12 +486,13 @@ Ph1MultipleTesting.Y01 <- function(model, FAP0 = 0.2, side = "right-sided", nsim
   
   for (i in 1:nsim) {
     tmpsel <- sample(1:nnsim, 1)
-    Mu0 <- matrix(rep(model$muq[tmpsel], n))
+    Mu0 <- matrix(rep(model$mu0[tmpsel], n))
     if (!is.null(model$X)) {
-      Mu0 <- Mu0 + model$X %*% (model$Beta[, tmpsel] * model$Kappa[, tmpsel])
+      Mu0 <- Mu0 + model$X %*% (model$Beta[, tmpsel] * model$Zeta[, tmpsel])
     }
-    ph1mat[, i] <- simYph1(matrix(model$Yyj[, tmpsel]), matrix(model$Phi[, tmpsel]), matrix(Mu0), 
-                            matrix(model$sigma2[tmpsel]), matrix(model$theta[tmpsel]), 1e-32)
+    ph1mat[, i] <- simYph2(0, as.matrix(model$Y), as.matrix(model$Z[, tmpsel]), as.matrix(model$Phi[, tmpsel]),
+                           Mu0, model$sigma2[tmpsel], updateYJ, model$theta[tmpsel], 
+                           leftcensoring, rounding, eps)
   }
   
   adj.alpha <- uniroot(root.finding, interval, ph1mat = ph1mat, FAP0 = FAP0, n = n - q, nsim = nsim, side = side, 

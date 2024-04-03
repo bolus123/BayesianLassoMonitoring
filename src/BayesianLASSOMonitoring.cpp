@@ -620,6 +620,9 @@ Rcpp::List updateTauGamma(arma::colvec tmpY,arma::colvec Phi,arma::mat Tau,arma:
                           double mu0, double sigma2, double pho, double xi2,
                           int T, int q,arma::mat D,arma::mat H_, int Hflg, int m){
   
+  //Rcpp::Rcout << "m:" << m << std::endl;
+  //Rcpp::Rcout << "Hflg:" << Hflg << std::endl;
+  
  arma::mat Ht(T, 1); 
  arma::mat DHt(T, m);
  arma::mat tHtDHt(m, 1); 
@@ -650,6 +653,8 @@ Rcpp::List updateTauGamma(arma::colvec tmpY,arma::colvec Phi,arma::mat Tau,arma:
   double mt; 
   
   int jj;
+  
+  //Rcpp::Rcout << 2.1 << std::endl;
   
   if (Hflg == 1) {
     
@@ -691,6 +696,9 @@ Rcpp::List updateTauGamma(arma::colvec tmpY,arma::colvec Phi,arma::mat Tau,arma:
       
       Tau(jj) = R::rbinom(1, p);
       pvec(jj) = p;
+      
+      //Rcpp::Rcout << 2.2 << std::endl;
+      
       //############
       if (Tau(jj) == 1) {
         
@@ -713,12 +721,18 @@ Rcpp::List updateTauGamma(arma::colvec tmpY,arma::colvec Phi,arma::mat Tau,arma:
         st = xi2;
       }
       
+      //Rcpp::Rcout << 2.3 << std::endl;
+      
       Gamma(jj) = R::rnorm(mt, sqrt(st));
       muGamma(jj) = mt;
       sigma2Gamma(jj) = st;
+      
+      //Rcpp::Rcout << 2.4 << std::endl;
     }
     
   }
+  
+  //Rcpp::Rcout << 2.5 << std::endl;
   
   Rcpp::List out = Rcpp::List::create(
     Rcpp::_["Tau"] = Tau,
@@ -729,6 +743,136 @@ Rcpp::List updateTauGamma(arma::colvec tmpY,arma::colvec Phi,arma::mat Tau,arma:
   );
   return(out);
 }
+
+
+Rcpp::List updateZetaBeta(arma::colvec tmpY,arma::colvec Phi,arma::mat Zeta,arma::mat Beta, 
+                          double mu0, double sigma2, double pho, double xi2,
+                          int T, int q,arma::mat D,arma::mat X_, int Xflg, int m){
+  
+  //Rcpp::Rcout << "m:" << m << std::endl;
+  //Rcpp::Rcout << "Hflg:" << Hflg << std::endl;
+  
+ arma::mat Ht(T, 1); 
+ arma::mat DHt(T, m);
+ arma::mat tHtDHt(m, 1); 
+ arma::mat Hnot(T, m - 1);
+ arma::mat tmpDHt;
+ arma::mat tmptHtDHt; 
+  
+ arma::mat Zetanot(m - 1, 1);
+ arma::mat Zetat(1, 1);
+ arma::mat Betanot(m - 1, 1);
+ arma::mat Betat(1, 1);
+  
+ arma::mat zetanot(T, 1);
+ arma::mat zetat(T, 1);
+  
+ arma::mat pvec(m, 1); 
+  
+ arma::mat muBeta = Beta;
+ arma::mat sigma2Beta = Beta;
+  
+  double tmpzetanot;
+  double tmpzetat;
+ arma::mat tmp;
+  double p;
+  
+ arma::mat Betathat(m, 1);
+  double st;
+  double mt; 
+  
+  int jj;
+  
+  //Rcpp::Rcout << 2.1 << std::endl;
+  
+  if (Xflg == 1) {
+    
+   // get DHt and tHtDHt
+    
+    //for (jj = 0; jj < m; jj++){
+   //  Ht = H_.col(jj);
+   //  DHt.col(jj) = D * Ht;
+   //  tmp = Ht.t() * DHt.col(jj);
+   //  tHtDHt(jj) = tmp(0);
+    //}
+    
+   // update Tau and Gamma
+    for (jj = 0; jj < m; jj++) {
+      Hnot = removeCol(X_, jj);
+      Ht = X_.col(jj);
+      
+      //tmpDHt = DHt.col(jj);
+      //tmptHtDHt = tHtDHt(jj);
+      
+      //############
+      Zetanot = removeRow(Zeta, jj);
+      Zetat = Zeta.row(jj);
+      
+      Betanot = removeRow(Beta, jj);
+      Betat = Beta.row(jj);
+      
+      //update Zeta
+      zetanot = tmpY - Hnot * (Zetanot % Betanot);
+      zetat = zetanot - Ht * Betat;
+      
+      tmp =arma::exp(-1.0 / 2.0 / sigma2 * zetanot.t() * D * zetanot);
+      tmpzetanot = tmp(0);
+      
+      tmp =arma::exp(-1.0 / 2.0 / sigma2 * zetat.t() * D * zetat);
+      tmpzetat = tmp(0);
+      
+      p = pho * tmpzetat / (pho * tmpzetat + (1 - pho) * tmpzetanot);
+      
+      Zeta(jj) = R::rbinom(1, p);
+      pvec(jj) = p;
+      
+      //Rcpp::Rcout << 2.2 << std::endl;
+      
+      //############
+      if (Zeta(jj) == 1) {
+        
+        DHt.col(jj) = D * Ht;
+        tmp = Ht.t() * DHt.col(jj);
+        tHtDHt(jj) = tmp(0);
+        
+        tmpDHt = DHt.col(jj);
+        tmptHtDHt = tHtDHt(jj);
+        
+        //#update Gamma
+        tmp = tmpDHt.t() * zetanot / tmptHtDHt;
+        Betathat = tmp(0);
+        tmp = 1.0 / (tmptHtDHt / sigma2 + 1 / xi2);
+        st = tmp(0);
+        tmp = st * (tmptHtDHt * Betathat) / sigma2;
+        mt = tmp(0);
+      } else {
+        mt = 0;
+        st = xi2;
+      }
+      
+      //Rcpp::Rcout << 2.3 << std::endl;
+      
+      Beta(jj) = R::rnorm(mt, sqrt(st));
+      muBeta(jj) = mt;
+      sigma2Beta(jj) = st;
+      
+      //Rcpp::Rcout << 2.4 << std::endl;
+    }
+    
+  }
+  
+  //Rcpp::Rcout << 2.5 << std::endl;
+  
+  Rcpp::List out = Rcpp::List::create(
+    Rcpp::_["Zeta"] = Zeta,
+    Rcpp::_["Beta"] = Beta,
+    Rcpp::_["p"] = pvec,
+    Rcpp::_["muBeta"] = muBeta,
+    Rcpp::_["sigma2Beta"] = sigma2Beta
+  );
+  return(out);
+}
+
 
 Rcpp::List updatemu0Mu(arma::colvec Y,arma::mat Tau,arma::mat Gamma, double sigma2,
                       arma::mat One,arma::mat D,arma::mat H_, int Hflg, int T, double tol){
@@ -780,7 +924,7 @@ Rcpp::List updatemu0MuX(arma::colvec Y, arma::mat Zeta, arma::mat Beta,
                       arma::mat H_, int Hflg, arma::mat X_, int Xflg, 
                       int T, double tol){
   
- arma::colvec zeta;
+ arma::colvec tmpY;
  arma::mat HTauGamma;
  arma::mat XZetaBeta;
  arma::mat tOneD = One.t() * D;
@@ -795,20 +939,31 @@ Rcpp::List updatemu0MuX(arma::colvec Y, arma::mat Zeta, arma::mat Beta,
     tOneDOne = tol;
   }
   
-  zeta = Y;
+  //Rcpp::Rcout << 1 << std::endl;
+  
+  tmpY = Y;
+  
+  //Rcpp::Rcout << 2 << std::endl;
   
   if (Hflg == 1) {
     HTauGamma = H_ * (Tau % Gamma);
-    zeta = zeta - HTauGamma;
+    tmpY = tmpY - HTauGamma;
   }
+  
+ // Rcpp::Rcout << 3 << std::endl;
+  
+  //Rcpp::Rcout << Zeta << std::endl;
+  //Rcpp::Rcout << Beta << std::endl;
   
   if (Xflg == 1) {
     XZetaBeta = X_ * (Zeta % Beta);
-    zeta = zeta - XZetaBeta;
+    tmpY = tmpY - XZetaBeta;
   }
   
+  //Rcpp::Rcout << 4 << std::endl;
+  
   //#cat("tOneDOne:", tOneDOne, "\n")
-  tmp = tOneD * zeta / tOneDOne;
+  tmp = tOneD * tmpY / tOneDOne;
   mu0hat = tmp(0);
   sq = sigma2 / tOneDOne;
   mu0 = R::rnorm(mu0hat, sqrt(sq));
@@ -2912,8 +3067,8 @@ Rcpp::List GibbsRFLSMXUpdatecpp(arma::colvec Y,int q,
  //arma::mat pvec(m, 1);
  // pvec.zeros();
   
-  double pho;
-  double phobeta;
+  double pho = 0.0;
+  double phobeta = 0.0;
   
  arma::mat eta2(q, 1);
   eta2.zeros();
@@ -2934,12 +3089,18 @@ Rcpp::List GibbsRFLSMXUpdatecpp(arma::colvec Y,int q,
     Phi = Rcpp::as<arma::mat>(oldpars_["Phi"]);
     Mu = Rcpp::as<arma::mat>(oldpars_["Mu"]);
     sigma2 = oldpars_["sigma2"];
-    Tau = Rcpp::as<arma::mat>(oldpars_["Tau"]);
-    Gamma = Rcpp::as<arma::mat>(oldpars_["Gamma"]);
-    pho = oldpars_["pho"];
-    Zeta = Rcpp::as<arma::mat>(oldpars_["Zeta"]);
-    Beta = Rcpp::as<arma::mat>(oldpars_["Beta"]);
-    phobeta = oldpars_["phobeta"];
+    
+    if (Hflg == 1) {
+      Tau = Rcpp::as<arma::mat>(oldpars_["Tau"]);
+      Gamma = Rcpp::as<arma::mat>(oldpars_["Gamma"]);
+      pho = oldpars_["pho"];
+    }
+    
+    if (Xflg == 1) {
+      Zeta = Rcpp::as<arma::mat>(oldpars_["Zeta"]);
+      Beta = Rcpp::as<arma::mat>(oldpars_["Beta"]);
+      phobeta = oldpars_["phobeta"];
+    }
     
     //Rcpp::Rcout << 2 << std::endl;
     
@@ -2953,6 +3114,8 @@ Rcpp::List GibbsRFLSMXUpdatecpp(arma::colvec Y,int q,
     mu0 = oldpars_["mu0"];
   } else {
  
+    //Rcpp::Rcout << 3 << std::endl;
+ 
       if (Xflg == 1) {
         model0 = arimaxcpp(Y, q, X_);
       } else {
@@ -2965,6 +3128,9 @@ Rcpp::List GibbsRFLSMXUpdatecpp(arma::colvec Y,int q,
       
       mu0 = coef[q];
       
+      //Rcpp::Rcout << "coef:" << coef << std::endl;
+      //Rcpp::Rcout << "mu0:" << mu0 << std::endl;
+      
       varcoef = Rcpp::as<Rcpp::NumericMatrix>(model0["var.coef"]);
       for (ii = 0; ii < q; ii++) {
         tmpphi = coef[ii];
@@ -2972,6 +3138,7 @@ Rcpp::List GibbsRFLSMXUpdatecpp(arma::colvec Y,int q,
       }
       
       Phi = Phihat;
+      
       
       if (MonoFlg == 1) {
         for (gg = 0; gg < q; gg++) {
@@ -2996,16 +3163,25 @@ Rcpp::List GibbsRFLSMXUpdatecpp(arma::colvec Y,int q,
         }
       }
       
+      //Rcpp::Rcout << "Phi:" << Phi << std::endl;
+      
       if (Xflg == 1) {
-        for (ii = q; ii < (q + betap + 1); ii++) {
+        for (ii = q + 1; ii < (q + betap + 1); ii++) {
+          //Rcpp::Rcout << "ii:" << ii << std::endl;
+          
           tmpbeta = coef[ii];
-          Betahat(ii) = tmpbeta;
+          Betahat(ii - (q + 1)) = tmpbeta;
+          
+          //Rcpp::Rcout << "tmpbeta:" << tmpbeta << std::endl;
         }
       
         Beta = Betahat;
         Zeta.ones();
       }
       
+      //Rcpp::Rcout << "betap:" << betap << std::endl;
+      //Rcpp::Rcout << "Beta:" << Beta << std::endl;
+      //Rcpp::Rcout << "Zeta:" << Zeta << std::endl;
       
       Mu.fill(mu0);
       
@@ -3037,6 +3213,8 @@ Rcpp::List GibbsRFLSMXUpdatecpp(arma::colvec Y,int q,
     
   }
   
+  
+  //Rcpp::Rcout << 4 << std::endl;
   
  arma::mat DHt(T, T);
   DHt.zeros();
@@ -3084,6 +3262,8 @@ Rcpp::List GibbsRFLSMXUpdatecpp(arma::colvec Y,int q,
     //if (ii % 100 == 0) {
    //  Rcpp::Rcout <<"Training: " << ((ii + 0.0) / (TotalSim + 0.0) * 100.0) << '%' << std::endl;
     //}
+    
+    //Rcpp::Rcout << "ii:" << ii << std::endl;
     
     //update V
     V_ = Y - Mu;
@@ -3139,6 +3319,8 @@ Rcpp::List GibbsRFLSMXUpdatecpp(arma::colvec Y,int q,
     
     //#update Tau and Gamma
     
+    //Rcpp::Rcout << 1 << std::endl;
+    
     if (Hflg == 1) {
       tmpY = Y - mu0;
     
@@ -3153,6 +3335,8 @@ Rcpp::List GibbsRFLSMXUpdatecpp(arma::colvec Y,int q,
       Tau = Rcpp::as<arma::mat>(TauGamma["Tau"]);
       Gamma = Rcpp::as<arma::mat>(TauGamma["Gamma"]);
     }
+    
+    //Rcpp::Rcout << 2 << std::endl;
     
     //Rcpp::Rcout << Tau << std::endl;
     //Rcpp::Rcout << Gamma << std::endl;
@@ -3169,13 +3353,15 @@ Rcpp::List GibbsRFLSMXUpdatecpp(arma::colvec Y,int q,
         tmpY = tmpY - H_ * (Tau % Gamma);
       }
     
-      ZetaBeta = updateTauGamma(tmpY, Phi, Zeta, Beta, 
+      ZetaBeta = updateZetaBeta(tmpY, Phi, Zeta, Beta, 
                               mu0, sigma2, phobeta, xi2,
-                              T, q, D, H_, Hflg, m);
+                              T, q, D, X_, Xflg, betap);
     
-      Zeta = Rcpp::as<arma::mat>(TauGamma["Tau"]);
-      Beta = Rcpp::as<arma::mat>(TauGamma["Gamma"]);
+      Zeta = Rcpp::as<arma::mat>(ZetaBeta["Zeta"]);
+      Beta = Rcpp::as<arma::mat>(ZetaBeta["Beta"]);
     }
+    
+    //Rcpp::Rcout << 3 << std::endl;
     
     //Rcpp::Rcout << Zeta << std::endl;
     //Rcpp::Rcout << Beta << std::endl;
@@ -3192,6 +3378,8 @@ Rcpp::List GibbsRFLSMXUpdatecpp(arma::colvec Y,int q,
     //Rcpp::Rcout << mu0 << std::endl;
     
     Mu = Rcpp::as<arma::mat>(mu0Mu["Mu"]);
+    
+    //Rcpp::Rcout << 4 << std::endl;
     
     //Rcpp::Rcout << mu0 << std::endl;
     //Rcpp::Rcout << Mu << std::endl;
@@ -3278,6 +3466,8 @@ Rcpp::List GibbsRFLSMXUpdatecpp(arma::colvec Y,int q,
     _["lambda2"] = lambda2out
   );
   
+  //Rcpp::Rcout << 1 << std::endl;
+  
   return(out);
   
 }
@@ -3347,9 +3537,13 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
   double theta_ = theta;
  arma::mat tmp; 
   
+  //Rcpp::Rcout << 1 << std::endl;
+  
   if (updateYJ == 1) {
     Yyj = yeojohnsontr(Y, theta_, eps);
   }
+  
+  //Rcpp::Rcout << 2 << std::endl;
   
   if (oldpars.isNotNull()) {
     oldpars_ = Rcpp::as<Rcpp::List>(oldpars);
@@ -3357,6 +3551,8 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
     Mu = Rcpp::as<arma::mat>(oldpars_["Mu"]);
     sigma2 = oldpars_["sigma2"];
   } else {
+    
+    //Rcpp::Rcout << 3 << std::endl;
     
     oldpars_ = GibbsRFLSMXUpdatecpp(Yyj, q, 
                                    A, a, b, alpha, beta, 
@@ -3444,6 +3640,8 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
   
   for (i = 0; i < TotalSim; i++) {
     
+    //Rcpp::Rcout << "i:" << i << std::endl;
+    
     if (i % 100 == 0) {
       Rcpp::Rcout <<"Training: " << ((i + 0.0) / (TotalSim + 0.0) * 100.0) << '%' << std::endl;
     }
@@ -3457,6 +3655,8 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
       Yyj = Y;
     }
     
+    //Rcpp::Rcout << 2 << std::endl;
+    
     if (updateYJ == 1) {
       //tmp = thetaYeoJohnsonMH(Y, Phi, Mu, sigma2, 
       //                        theta_, 1, 1, tol);
@@ -3467,8 +3667,42 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
       Yyj = yeojohnsontr(Yyj, theta_, eps);
     } 
     
-   //  Rcpp::Rcout << 4 << std::endl;
-   //  
+    //Rcpp::Rcout << 4 << std::endl;
+   // 
+   
+   //Rcpp::Rcout << Yyj << std::endl;
+   // Rcpp::Rcout << q << std::endl;
+   // Rcpp::Rcout << A << std::endl;
+   // Rcpp::Rcout << a << std::endl;
+   // Rcpp::Rcout << b << std::endl;
+   //Rcpp::Rcout << alpha << std::endl;
+   //Rcpp::Rcout << beta << std::endl;
+   //Rcpp::Rcout << theta1 << std::endl;
+   //Rcpp::Rcout << theta2 << std::endl;
+   //Rcpp::Rcout << xi2 << std::endl;
+   //Rcpp::Rcout << monophi << std::endl;
+   //Rcpp::Rcout << bound0 << std::endl;
+   //Rcpp::Rcout << boundqplus1 << std::endl;
+   //Rcpp::Rcout << tol << std::endl;
+   
+    //Phi = Rcpp::as<arma::mat>(oldpars_["Phi"]);
+    //Mu = Rcpp::as<arma::mat>(oldpars_["Mu"]);
+    //sigma2 = oldpars_["sigma2"];
+    
+    //Rcpp::Rcout << "Phi:" << Rcpp::as<arma::mat>(oldpars_["Phi"]) << std::endl;
+    //Rcpp::Rcout << "Mu:" << Rcpp::as<arma::mat>(oldpars_["Mu"] )<< std::endl;
+    //Rcpp::Rcout << "sigma2:" << Rcpp::as<double>(oldpars_["sigma2"]) << std::endl;
+    //Rcpp::Rcout << "Tau:" << Rcpp::as<arma::mat>(oldpars_["Tau"]) << std::endl;
+    //Rcpp::Rcout << "Gamma:" << Rcpp::as<arma::mat>(oldpars_["Gamma"]) << std::endl;
+    //Rcpp::Rcout << "Zeta:" << Rcpp::as<arma::mat>(oldpars_["Zeta"]) << std::endl;
+    //Rcpp::Rcout << "Beta:" << Rcpp::as<arma::mat>(oldpars_["Beta"]) << std::endl;
+    //Rcpp::Rcout << "mu0:" << Rcpp::as<double>(oldpars_["mu0"]) << std::endl;
+    //Rcpp::Rcout << "Mu:" << Rcpp::as<arma::mat>(oldpars_["Mu"]) << std::endl;
+    //Rcpp::Rcout << "pho:" << Rcpp::as<double>(oldpars_["pho"]) << std::endl;
+    //Rcpp::Rcout << "phobeta:" << Rcpp::as<double>(oldpars_["phobeta"]) << std::endl;
+    //Rcpp::Rcout << "eta2:" << Rcpp::as<arma::mat>(oldpars_["eta2"]) << std::endl;
+    //Rcpp::Rcout << "lambda2:" << Rcpp::as<arma::mat>(oldpars_["lambda2"]) << std::endl;
+   
     oldpars_ = GibbsRFLSMXUpdatecpp(Yyj, q, 
                                    A, a, b, alpha, beta, 
                                    theta1, theta2, xi2, 
@@ -3480,7 +3714,7 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
     Mu = Rcpp::as<arma::mat>(oldpars_["Mu"]);
     sigma2 = oldpars_["sigma2"];
    //  
-   //  Rcpp::Rcout << 5 << std::endl;
+    // Rcpp::Rcout << 5 << std::endl;
     
     
     
@@ -3740,7 +3974,7 @@ arma::colvec simYyjph2(int h, arma::colvec Yyjph1, arma::colvec Phi, arma::colve
   for (int i = 0; i < (T + h); i++) {
     
     
-    Rcpp::Rcout << i << std::endl;
+    //Rcpp::Rcout << i << std::endl;
     
     if (i >= q) {
       for (int j = 0; j < q; j++) {
@@ -3824,4 +4058,3 @@ arma::colvec simYph2(int h, arma::colvec Y, arma::colvec Z, arma::colvec Phi,arm
   return(Yph2);
   
 }
-
