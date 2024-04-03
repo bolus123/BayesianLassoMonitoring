@@ -264,14 +264,7 @@ GibbsRFLSM.ma <- function(Y, w = 7, H = NULL, X = NULL, Y0 = rep(mean(Y), w - 1)
 #' 
 #' result <- GibbsRFLSM(Y, H = H, q = q, nsim = nsim, burnin = burnin)
 #' 
-GibbsRFLSMXYJZ <- function(Y, H = NULL, X = NULL, q = 5, 
-                       A = diag(nrow = q), 
-                       a = 0.1, b = 0.1, alpha = 0.1, beta = 0.1, 
-                       theta1 = 1, theta2 = 1, xi2 = 0.1,
-                       method = "MonoALASSO", bound0 = Inf, boundqplus1 = 0,
-                       updateYJ = 1, theta = 1,
-                       updateZ = 1, eps = 1e-6,
-                       nsim = 1000, by = 1, burnin = 1000, tol = 1e-10) {
+GibbsRFLSMXYJZ <- function(Y, bset, X = NULL, H = NULL) {
   
   TT <- length(Y)
   
