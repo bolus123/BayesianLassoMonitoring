@@ -4,38 +4,14 @@
 \alias{GibbsRFLSMXYJZ}
 \title{Random Flexible Level Shift Model}
 \usage{
-GibbsRFLSMXYJZ(
-  Y,
-  H = NULL,
-  X = NULL,
-  q = 5,
-  A = diag(nrow = q),
-  a = 0.1,
-  b = 0.1,
-  alpha = 0.1,
-  beta = 0.1,
-  theta1 = 1,
-  theta2 = 1,
-  xi2 = 0.1,
-  method = "MonoALASSO",
-  bound0 = Inf,
-  boundqplus1 = 0,
-  updateYJ = 1,
-  theta = 1,
-  updateZ = 1,
-  eps = 1e-06,
-  nsim = 1000,
-  by = 1,
-  burnin = 1000,
-  tol = 1e-10
-)
+GibbsRFLSMXYJZ(Y, bset, X = NULL, H = NULL)
 }
 \arguments{
 \item{Y}{is a vector.}
 
-\item{H}{is the design matrix for shifts.}
-
 \item{X}{is the input matrix}
+
+\item{H}{is the design matrix for shifts.}
 
 \item{q}{is the number of lags.}
 

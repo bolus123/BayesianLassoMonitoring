@@ -195,8 +195,24 @@ updateZZ <- function(Y, Z, Phi, Mu, sigma2, theta, leftcensoring, rounding, burn
     .Call(`_BayesianLASSOMonitoring_updateZZ`, Y, Z, Phi, Mu, sigma2, theta, leftcensoring, rounding, burnin, nsim, tol)
 }
 
+updateZ0 <- function(Y, Z, Phi, Mu, sigma2, theta, leftcensoring, rounding, burnin, nsim, tol) {
+    .Call(`_BayesianLASSOMonitoring_updateZ0`, Y, Z, Phi, Mu, sigma2, theta, leftcensoring, rounding, burnin, nsim, tol)
+}
+
 GibbsRFLSMYeoJohnsonZcpp1 <- function(Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, method, monophi, bound0, boundqplus1, updateYJ, theta, leftcensoring, rounding, eps, nsim, by, burnin, tol, G = NULL, oldpars = NULL, H = NULL) {
     .Call(`_BayesianLASSOMonitoring_GibbsRFLSMYeoJohnsonZcpp1`, Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, method, monophi, bound0, boundqplus1, updateYJ, theta, leftcensoring, rounding, eps, nsim, by, burnin, tol, G, oldpars, H)
+}
+
+#' Absolute-value-constrained normal distribution
+#' 
+#' gets a sample from a normal distribution whose absolute observations are constrained.
+#'
+#' @param n is sample size.
+#' @export
+#' @examples
+#' rtwosegnorm(10, 1, 2, 0, 1)
+updateZSim <- function(Y, oldZ, Phi, Mu, sigma2, theta, eps, leftcensoring, rounding) {
+    .Call(`_BayesianLASSOMonitoring_updateZSim`, Y, oldZ, Phi, Mu, sigma2, theta, eps, leftcensoring, rounding)
 }
 
 GibbsRFLSMXUpdatecpp <- function(Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, method, monophi, bound0, boundqplus1, nsim, by, burnin, tol, G = NULL, oldpars = NULL, X = NULL, H = NULL) {
@@ -205,6 +221,10 @@ GibbsRFLSMXUpdatecpp <- function(Y, q, A, a, b, alpha, beta, theta1, theta2, xi2
 
 GibbsRFLSMXYJZcpp <- function(Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, method, monophi, bound0, boundqplus1, updateYJ, theta, leftcensoring, rounding, eps, nsim, by, burnin, tol, G = NULL, oldpars = NULL, X = NULL, H = NULL) {
     .Call(`_BayesianLASSOMonitoring_GibbsRFLSMXYJZcpp`, Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, method, monophi, bound0, boundqplus1, updateYJ, theta, leftcensoring, rounding, eps, nsim, by, burnin, tol, G, oldpars, X, H)
+}
+
+GibbsRFLSMXYJZcpp1 <- function(Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, method, monophi, bound0, boundqplus1, updateYJ, theta, leftcensoring, rounding, eps, nsim, by, burnin, tol, G = NULL, oldpars = NULL, X = NULL, H = NULL) {
+    .Call(`_BayesianLASSOMonitoring_GibbsRFLSMXYJZcpp1`, Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, method, monophi, bound0, boundqplus1, updateYJ, theta, leftcensoring, rounding, eps, nsim, by, burnin, tol, G, oldpars, X, H)
 }
 
 #' Absolute-value-constrained normal distribution
