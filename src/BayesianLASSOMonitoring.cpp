@@ -3618,6 +3618,328 @@ Rcpp::List GibbsRFLSMXUpdatecpp(arma::colvec Y,int q,
 }
 
 
+//// [[Rcpp::export]]
+//Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q, 
+//                              arma::mat& A, double& a, double& b, double& alpha, double& beta, 
+//                               double& theta1, double& theta2, double& xi2,
+//                               Rcpp::String& method, int monophi, double& bound0, double& boundqplus1,
+//                               int updateYJ, double& theta,
+//                               int leftcensoring, int rounding, double eps,
+//                               int& nsim, int& by, int& burnin,
+//                               double& tol, 
+//                               Rcpp::Nullable<Rcpp::NumericMatrix> G = R_NilValue,
+//                               Rcpp::Nullable<Rcpp::List> oldpars = R_NilValue,
+//                               Rcpp::Nullable<Rcpp::NumericMatrix> X = R_NilValue,
+//                               Rcpp::Nullable<Rcpp::NumericMatrix> H = R_NilValue) {
+//  
+//  
+//  auto start = std::chrono::system_clock::now();
+//  std::time_t start_time = std::chrono::system_clock::to_time_t(start);
+//  
+//  Rcpp::Rcout << "Start training using " << method.get_cstring() << " at " << std::ctime(&start_time) <<  std::endl;
+//  
+//  ///////////////////////////////////
+//  
+//   arma::mat X_;
+//  
+// // Calculate X
+//  int betap = 0;
+//  int Xflg = 0;
+//  if (X.isNotNull()) {
+//    X_ = Rcpp::as<arma::mat>(X);
+//    betap = X_.n_cols;
+//    Xflg = 1;
+//  } 
+//  
+// arma::mat H_;
+//  
+// // Calculate H
+//  int m = 0;
+//  int Hflg = 0;
+//  if (H.isNotNull()) {
+//    H_ = Rcpp::as<arma::mat>(H);
+//    m = H_.n_cols;
+//    Hflg = 1;
+//  } 
+//  
+//  
+//  int T = Y.n_elem;
+//  
+//  int TotalSim = nsim * by + burnin;
+//  
+//  Rcpp::List GibbsRFLSMModel; 
+// arma::colvec Yyj = Y;
+//  
+//  Rcpp::List oldpars_;
+//  
+// arma::mat Phi(q, 1);
+//  Phi.zeros();
+//  
+// arma::mat Mu(T - q, 1);
+//  Mu.zeros();
+//  
+//  double sigma2 = 1.0;
+//  double theta_ = theta;
+// arma::mat tmp; 
+//  
+//  //Rcpp::Rcout << 1 << std::endl;
+//  
+//  if (updateYJ == 1) {
+//    Yyj = yeojohnsontr(Y, theta_, eps);
+//  }
+//  
+//  //Rcpp::Rcout << 2 << std::endl;
+//  
+//  if (oldpars.isNotNull()) {
+//    oldpars_ = Rcpp::as<Rcpp::List>(oldpars);
+//    Phi = Rcpp::as<arma::mat>(oldpars_["Phi"]);
+//    Mu = Rcpp::as<arma::mat>(oldpars_["Mu"]);
+//    sigma2 = oldpars_["sigma2"];
+//  } else {
+//    
+//    //Rcpp::Rcout << 3 << std::endl;
+//    
+//    oldpars_ = GibbsRFLSMXUpdatecpp(Yyj, q, 
+//                                   A, a, b, alpha, beta, 
+//                                   theta1, theta2, xi2, 
+//                                   method, monophi, bound0, boundqplus1, 
+//                                   1, 1, 0, tol,
+//                                   G, oldpars, X, H);
+//    Phi = Rcpp::as<arma::mat>(oldpars_["Phi"]);
+//    Mu = Rcpp::as<arma::mat>(oldpars_["Mu"]);
+//    sigma2 = oldpars_["sigma2"];
+//  }
+//  
+//  //Rcpp::Rcout << 21 << std::endl;
+//  
+//  //if (updateZ == 1) {
+//  //  Yyj = getucY(Yyj, Y, Phi, Mu, sigma2, theta_, eps);
+//  //}
+//  
+//  Rcpp::NumericMatrix GG;
+// arma::mat G_;
+//  
+//  if (G.isNotNull()) {
+//    GG = Rcpp::as<Rcpp::NumericMatrix>(G);
+//  } else {
+//    G_ = getGMat(T, q);
+//    GG = Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(G_));
+//  }
+//  
+//  //Rcpp::Rcout << 2 << std::endl;
+//  
+//  arma::mat Z(T, 1);
+//  Z.zeros();
+//  
+//  //////////////////////////
+//  
+// arma::mat Phiout(q, nsim); 
+// arma::mat sigma2out(1, nsim);
+// 
+// arma::mat Tauout;
+// arma::mat Gammaout;
+// arma::mat phoout;
+// if (Hflg == 1) {
+//   Tauout.set_size(m, nsim);
+//   Gammaout.set_size(m, nsim);
+//   phoout.set_size(1, nsim);
+// }
+// 
+// arma::mat Zetaout;
+// arma::mat Betaout;
+// arma::mat phobetaout;
+// if (Xflg == 1) {
+//   Zetaout.set_size(betap, nsim);
+//   Betaout.set_size(betap, nsim);
+//   phobetaout.set_size(1, nsim);
+// }
+//
+// arma::mat mu0out(1, nsim);
+// arma::mat Muout(T, nsim);
+// 
+// 
+// arma::mat eta2out;
+// arma::mat lambda2out;
+// if ((method == "LASSO") || (method == "ALASSO")) {
+//   eta2out.set_size(q, nsim);
+//   lambda2out.set_size(q, nsim);
+// }
+// 
+// arma::mat thetaout;
+// if (updateYJ == 1) {
+//   thetaout.set_size(1, nsim);
+// }
+// 
+// arma::mat Zout;
+// if ((leftcensoring == 1) || (rounding == 1)) {
+//   Zout.set_size(T, nsim);
+// }
+//  
+//  //////////////////////////
+//  
+//  
+//  //////////////////////////
+//  
+//  int i;
+//  int rr = 0;
+//  
+//  for (i = 0; i < TotalSim; i++) {
+//    
+//    //Rcpp::Rcout << "i:" << i << std::endl;
+//    
+//    if (i % 100 == 0) {
+//      Rcpp::Rcout <<"Training: " << ((i + 0.0) / (TotalSim + 0.0) * 100.0) << '%' << std::endl;
+//    }
+//    
+//    //if (updateZ == 1) {
+//    if ((leftcensoring == 1) || (rounding == 1)) {
+//      Z = updateZZ(Y, Z, Phi, Mu, sigma2, 
+//                  theta_, leftcensoring, rounding, 0, 1, tol);
+//      Yyj = Y + Z;
+//    } else {
+//      Yyj = Y;
+//    }
+//    
+//    //Rcpp::Rcout << 2 << std::endl;
+//    
+//    if (updateYJ == 1) {
+//      //tmp = thetaYeoJohnsonMH(Y, Phi, Mu, sigma2, 
+//      //                        theta_, 1, 1, tol);
+//      tmp = updatethetaYJMH(Yyj, Phi, Mu, sigma2, 
+//                              theta_, 0, 1, tol);
+//      theta_ = tmp(0);
+//      //Rcpp::Rcout << theta_ << std::endl;
+//      Yyj = yeojohnsontr(Yyj, theta_, eps);
+//    } 
+//    
+//    //Rcpp::Rcout << 4 << std::endl;
+//   // 
+//   
+//   //Rcpp::Rcout << Yyj << std::endl;
+//   // Rcpp::Rcout << q << std::endl;
+//   // Rcpp::Rcout << A << std::endl;
+//   // Rcpp::Rcout << a << std::endl;
+//   // Rcpp::Rcout << b << std::endl;
+//   //Rcpp::Rcout << alpha << std::endl;
+//   //Rcpp::Rcout << beta << std::endl;
+//   //Rcpp::Rcout << theta1 << std::endl;
+//   //Rcpp::Rcout << theta2 << std::endl;
+//   //Rcpp::Rcout << xi2 << std::endl;
+//   //Rcpp::Rcout << monophi << std::endl;
+//   //Rcpp::Rcout << bound0 << std::endl;
+//   //Rcpp::Rcout << boundqplus1 << std::endl;
+//   //Rcpp::Rcout << tol << std::endl;
+//   
+//    //Phi = Rcpp::as<arma::mat>(oldpars_["Phi"]);
+//    //Mu = Rcpp::as<arma::mat>(oldpars_["Mu"]);
+//    //sigma2 = oldpars_["sigma2"];
+//    
+//    //Rcpp::Rcout << "Phi:" << Rcpp::as<arma::mat>(oldpars_["Phi"]) << std::endl;
+//    //Rcpp::Rcout << "Mu:" << Rcpp::as<arma::mat>(oldpars_["Mu"] )<< std::endl;
+//    //Rcpp::Rcout << "sigma2:" << Rcpp::as<double>(oldpars_["sigma2"]) << std::endl;
+//    //Rcpp::Rcout << "Tau:" << Rcpp::as<arma::mat>(oldpars_["Tau"]) << std::endl;
+//    //Rcpp::Rcout << "Gamma:" << Rcpp::as<arma::mat>(oldpars_["Gamma"]) << std::endl;
+//    //Rcpp::Rcout << "Zeta:" << Rcpp::as<arma::mat>(oldpars_["Zeta"]) << std::endl;
+//    //Rcpp::Rcout << "Beta:" << Rcpp::as<arma::mat>(oldpars_["Beta"]) << std::endl;
+//    //Rcpp::Rcout << "mu0:" << Rcpp::as<double>(oldpars_["mu0"]) << std::endl;
+//    //Rcpp::Rcout << "Mu:" << Rcpp::as<arma::mat>(oldpars_["Mu"]) << std::endl;
+//    //Rcpp::Rcout << "pho:" << Rcpp::as<double>(oldpars_["pho"]) << std::endl;
+//    //Rcpp::Rcout << "phobeta:" << Rcpp::as<double>(oldpars_["phobeta"]) << std::endl;
+//    //Rcpp::Rcout << "eta2:" << Rcpp::as<arma::mat>(oldpars_["eta2"]) << std::endl;
+//    //Rcpp::Rcout << "lambda2:" << Rcpp::as<arma::mat>(oldpars_["lambda2"]) << std::endl;
+//   
+//    oldpars_ = GibbsRFLSMXUpdatecpp(Yyj, q, 
+//                                   A, a, b, alpha, beta, 
+//                                   theta1, theta2, xi2, 
+//                                   method, monophi, bound0, boundqplus1, 
+//                                   1, 1, 0, tol,
+//                                   GG, oldpars_, X, H);
+//    
+//    Phi = Rcpp::as<arma::mat>(oldpars_["Phi"]);
+//    Mu = Rcpp::as<arma::mat>(oldpars_["Mu"]);
+//    sigma2 = oldpars_["sigma2"];
+//   //  
+//    // Rcpp::Rcout << 5 << std::endl;
+//    
+//    
+//    
+//    //if (updateZ == 1) {
+//    //  Yyj = getucY(Yyj, Y, Phi, Mu, sigma2, theta_, eps);
+//    //}
+//    
+//    if (i >= burnin) {
+//      if (i % by == 0) {
+//        Phiout.col(rr) = Rcpp::as<arma::mat>(oldpars_["Phi"]);
+//        sigma2out.col(rr) = Rcpp::as<arma::mat>(oldpars_["sigma2"]);
+//        
+//        if (Hflg == 1) {
+//          Tauout.col(rr) = Rcpp::as<arma::mat>(oldpars_["Tau"]);
+//          Gammaout.col(rr) = Rcpp::as<arma::mat>(oldpars_["Gamma"]);
+//        }
+//        
+//        if (Xflg == 1) {
+//          Zetaout.col(rr) = Rcpp::as<arma::mat>(oldpars_["Zeta"]);
+//          Betaout.col(rr) = Rcpp::as<arma::mat>(oldpars_["Beta"]);
+//        }
+//        
+//        mu0out.col(rr) = Rcpp::as<arma::mat>(oldpars_["mu0"]);
+//        Muout.col(rr) = Rcpp::as<arma::mat>(oldpars_["Mu"]);
+//        
+//        
+//        
+//        if ((method == "LASSO") || (method == "ALASSO")) {
+//          eta2out.col(rr) = Rcpp::as<arma::mat>(oldpars_["eta2"]);
+//          lambda2out.col(rr) = Rcpp::as<arma::mat>(oldpars_["lambda2"]);
+//        }
+//        
+//        if (updateYJ == 1) {
+//          thetaout.col(rr) = theta_;
+//        }
+//        //Yyjout.col(rr) = Yyj;
+//        
+//        if ((leftcensoring == 1) || (rounding == 1)) {
+//          Zout.col(rr) = Z;
+//        }
+//        rr = rr + 1;
+//      }
+//    }
+//    
+//  }
+//  
+//  Rcpp::Rcout <<"Training: 100%" << std::endl;
+//  
+//  auto end = std::chrono::system_clock::now();
+//  std::chrono::duration<double> elapsed_seconds = end-start;
+//  std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+//  
+//  Rcpp::Rcout << "Finished training at " << std::ctime(&end_time)
+//              << "Elapsed time: " << elapsed_seconds.count() << "s"
+//              << std::endl;
+//  
+//  
+//  Rcpp::List out; 
+//  out = Rcpp::List::create(
+//    _["Phi"] = Phiout,
+//    _["sigma2"] = sigma2out,
+//    _["Tau"] = Tauout,
+//    _["Gamma"] = Gammaout,
+//    _["Zeta"] = Zetaout,
+//    _["Beta"] = Betaout,
+//    _["mu0"] = mu0out,
+//    _["Mu"] = Muout,
+//    //_["pho"] = phoout,
+//    _["eta2"] = eta2out,
+//    _["lambda2"] = lambda2out,
+//    _["theta"] = thetaout,
+//    _["Z"] = Zout
+//    //_["Yyj"] = Yyjout
+//  );
+//  
+//  return(out);
+//  
+//}
+
+
 // [[Rcpp::export]]
 Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q, 
                               arma::mat& A, double& a, double& b, double& alpha, double& beta, 
@@ -3773,328 +4095,9 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
  arma::mat Zout;
  if ((leftcensoring == 1) || (rounding == 1)) {
    Zout.set_size(T, nsim);
- }
-  
-  //////////////////////////
-  
-  
-  //////////////////////////
-  
-  int i;
-  int rr = 0;
-  
-  for (i = 0; i < TotalSim; i++) {
-    
-    //Rcpp::Rcout << "i:" << i << std::endl;
-    
-    if (i % 100 == 0) {
-      Rcpp::Rcout <<"Training: " << ((i + 0.0) / (TotalSim + 0.0) * 100.0) << '%' << std::endl;
-    }
-    
-    //if (updateZ == 1) {
-    if ((leftcensoring == 1) || (rounding == 1)) {
-      Z = updateZZ(Y, Z, Phi, Mu, sigma2, 
-                  theta_, leftcensoring, rounding, 0, 1, tol);
-      Yyj = Y + Z;
-    } else {
-      Yyj = Y;
-    }
-    
-    //Rcpp::Rcout << 2 << std::endl;
-    
-    if (updateYJ == 1) {
-      //tmp = thetaYeoJohnsonMH(Y, Phi, Mu, sigma2, 
-      //                        theta_, 1, 1, tol);
-      tmp = updatethetaYJMH(Yyj, Phi, Mu, sigma2, 
-                              theta_, 0, 1, tol);
-      theta_ = tmp(0);
-      //Rcpp::Rcout << theta_ << std::endl;
-      Yyj = yeojohnsontr(Yyj, theta_, eps);
-    } 
-    
-    //Rcpp::Rcout << 4 << std::endl;
-   // 
    
-   //Rcpp::Rcout << Yyj << std::endl;
-   // Rcpp::Rcout << q << std::endl;
-   // Rcpp::Rcout << A << std::endl;
-   // Rcpp::Rcout << a << std::endl;
-   // Rcpp::Rcout << b << std::endl;
-   //Rcpp::Rcout << alpha << std::endl;
-   //Rcpp::Rcout << beta << std::endl;
-   //Rcpp::Rcout << theta1 << std::endl;
-   //Rcpp::Rcout << theta2 << std::endl;
-   //Rcpp::Rcout << xi2 << std::endl;
-   //Rcpp::Rcout << monophi << std::endl;
-   //Rcpp::Rcout << bound0 << std::endl;
-   //Rcpp::Rcout << boundqplus1 << std::endl;
-   //Rcpp::Rcout << tol << std::endl;
-   
-    //Phi = Rcpp::as<arma::mat>(oldpars_["Phi"]);
-    //Mu = Rcpp::as<arma::mat>(oldpars_["Mu"]);
-    //sigma2 = oldpars_["sigma2"];
-    
-    //Rcpp::Rcout << "Phi:" << Rcpp::as<arma::mat>(oldpars_["Phi"]) << std::endl;
-    //Rcpp::Rcout << "Mu:" << Rcpp::as<arma::mat>(oldpars_["Mu"] )<< std::endl;
-    //Rcpp::Rcout << "sigma2:" << Rcpp::as<double>(oldpars_["sigma2"]) << std::endl;
-    //Rcpp::Rcout << "Tau:" << Rcpp::as<arma::mat>(oldpars_["Tau"]) << std::endl;
-    //Rcpp::Rcout << "Gamma:" << Rcpp::as<arma::mat>(oldpars_["Gamma"]) << std::endl;
-    //Rcpp::Rcout << "Zeta:" << Rcpp::as<arma::mat>(oldpars_["Zeta"]) << std::endl;
-    //Rcpp::Rcout << "Beta:" << Rcpp::as<arma::mat>(oldpars_["Beta"]) << std::endl;
-    //Rcpp::Rcout << "mu0:" << Rcpp::as<double>(oldpars_["mu0"]) << std::endl;
-    //Rcpp::Rcout << "Mu:" << Rcpp::as<arma::mat>(oldpars_["Mu"]) << std::endl;
-    //Rcpp::Rcout << "pho:" << Rcpp::as<double>(oldpars_["pho"]) << std::endl;
-    //Rcpp::Rcout << "phobeta:" << Rcpp::as<double>(oldpars_["phobeta"]) << std::endl;
-    //Rcpp::Rcout << "eta2:" << Rcpp::as<arma::mat>(oldpars_["eta2"]) << std::endl;
-    //Rcpp::Rcout << "lambda2:" << Rcpp::as<arma::mat>(oldpars_["lambda2"]) << std::endl;
-   
-    oldpars_ = GibbsRFLSMXUpdatecpp(Yyj, q, 
-                                   A, a, b, alpha, beta, 
-                                   theta1, theta2, xi2, 
-                                   method, monophi, bound0, boundqplus1, 
-                                   1, 1, 0, tol,
-                                   GG, oldpars_, X, H);
-    
-    Phi = Rcpp::as<arma::mat>(oldpars_["Phi"]);
-    Mu = Rcpp::as<arma::mat>(oldpars_["Mu"]);
-    sigma2 = oldpars_["sigma2"];
-   //  
-    // Rcpp::Rcout << 5 << std::endl;
-    
-    
-    
-    //if (updateZ == 1) {
-    //  Yyj = getucY(Yyj, Y, Phi, Mu, sigma2, theta_, eps);
-    //}
-    
-    if (i >= burnin) {
-      if (i % by == 0) {
-        Phiout.col(rr) = Rcpp::as<arma::mat>(oldpars_["Phi"]);
-        sigma2out.col(rr) = Rcpp::as<arma::mat>(oldpars_["sigma2"]);
-        
-        if (Hflg == 1) {
-          Tauout.col(rr) = Rcpp::as<arma::mat>(oldpars_["Tau"]);
-          Gammaout.col(rr) = Rcpp::as<arma::mat>(oldpars_["Gamma"]);
-        }
-        
-        if (Xflg == 1) {
-          Zetaout.col(rr) = Rcpp::as<arma::mat>(oldpars_["Zeta"]);
-          Betaout.col(rr) = Rcpp::as<arma::mat>(oldpars_["Beta"]);
-        }
-        
-        mu0out.col(rr) = Rcpp::as<arma::mat>(oldpars_["mu0"]);
-        Muout.col(rr) = Rcpp::as<arma::mat>(oldpars_["Mu"]);
-        
-        
-        
-        if ((method == "LASSO") || (method == "ALASSO")) {
-          eta2out.col(rr) = Rcpp::as<arma::mat>(oldpars_["eta2"]);
-          lambda2out.col(rr) = Rcpp::as<arma::mat>(oldpars_["lambda2"]);
-        }
-        
-        if (updateYJ == 1) {
-          thetaout.col(rr) = theta_;
-        }
-        //Yyjout.col(rr) = Yyj;
-        
-        if ((leftcensoring == 1) || (rounding == 1)) {
-          Zout.col(rr) = Z;
-        }
-        rr = rr + 1;
-      }
-    }
-    
-  }
-  
-  Rcpp::Rcout <<"Training: 100%" << std::endl;
-  
-  auto end = std::chrono::system_clock::now();
-  std::chrono::duration<double> elapsed_seconds = end-start;
-  std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-  
-  Rcpp::Rcout << "Finished training at " << std::ctime(&end_time)
-              << "Elapsed time: " << elapsed_seconds.count() << "s"
-              << std::endl;
-  
-  
-  Rcpp::List out; 
-  out = Rcpp::List::create(
-    _["Phi"] = Phiout,
-    _["sigma2"] = sigma2out,
-    _["Tau"] = Tauout,
-    _["Gamma"] = Gammaout,
-    _["Zeta"] = Zetaout,
-    _["Beta"] = Betaout,
-    _["mu0"] = mu0out,
-    _["Mu"] = Muout,
-    //_["pho"] = phoout,
-    _["eta2"] = eta2out,
-    _["lambda2"] = lambda2out,
-    _["theta"] = thetaout,
-    _["Z"] = Zout
-    //_["Yyj"] = Yyjout
-  );
-  
-  return(out);
-  
-}
-
-
-// [[Rcpp::export]]
-Rcpp::List GibbsRFLSMXYJZcpp1(arma::colvec& Y,int& q, 
-                              arma::mat& A, double& a, double& b, double& alpha, double& beta, 
-                               double& theta1, double& theta2, double& xi2,
-                               Rcpp::String& method, int monophi, double& bound0, double& boundqplus1,
-                               int updateYJ, double& theta,
-                               int leftcensoring, int rounding, double eps,
-                               int& nsim, int& by, int& burnin,
-                               double& tol, 
-                               Rcpp::Nullable<Rcpp::NumericMatrix> G = R_NilValue,
-                               Rcpp::Nullable<Rcpp::List> oldpars = R_NilValue,
-                               Rcpp::Nullable<Rcpp::NumericMatrix> X = R_NilValue,
-                               Rcpp::Nullable<Rcpp::NumericMatrix> H = R_NilValue) {
-  
-  
-  auto start = std::chrono::system_clock::now();
-  std::time_t start_time = std::chrono::system_clock::to_time_t(start);
-  
-  Rcpp::Rcout << "Start training using " << method.get_cstring() << " at " << std::ctime(&start_time) <<  std::endl;
-  
-  ///////////////////////////////////
-  
-   arma::mat X_;
-  
- // Calculate X
-  int betap = 0;
-  int Xflg = 0;
-  if (X.isNotNull()) {
-    X_ = Rcpp::as<arma::mat>(X);
-    betap = X_.n_cols;
-    Xflg = 1;
-  } 
-  
- arma::mat H_;
-  
- // Calculate H
-  int m = 0;
-  int Hflg = 0;
-  if (H.isNotNull()) {
-    H_ = Rcpp::as<arma::mat>(H);
-    m = H_.n_cols;
-    Hflg = 1;
-  } 
-  
-  
-  int T = Y.n_elem;
-  
-  int TotalSim = nsim * by + burnin;
-  
-  Rcpp::List GibbsRFLSMModel; 
- arma::colvec Yyj = Y;
-  
-  Rcpp::List oldpars_;
-  
- arma::mat Phi(q, 1);
-  Phi.zeros();
-  
- arma::mat Mu(T - q, 1);
-  Mu.zeros();
-  
-  double sigma2 = 1.0;
-  double theta_ = theta;
- arma::mat tmp; 
-  
-  //Rcpp::Rcout << 1 << std::endl;
-  
-  if (updateYJ == 1) {
-    Yyj = yeojohnsontr(Y, theta_, eps);
-  }
-  
-  //Rcpp::Rcout << 2 << std::endl;
-  
-  if (oldpars.isNotNull()) {
-    oldpars_ = Rcpp::as<Rcpp::List>(oldpars);
-    Phi = Rcpp::as<arma::mat>(oldpars_["Phi"]);
-    Mu = Rcpp::as<arma::mat>(oldpars_["Mu"]);
-    sigma2 = oldpars_["sigma2"];
-  } else {
-    
-    //Rcpp::Rcout << 3 << std::endl;
-    
-    oldpars_ = GibbsRFLSMXUpdatecpp(Yyj, q, 
-                                   A, a, b, alpha, beta, 
-                                   theta1, theta2, xi2, 
-                                   method, monophi, bound0, boundqplus1, 
-                                   1, 1, 0, tol,
-                                   G, oldpars, X, H);
-    Phi = Rcpp::as<arma::mat>(oldpars_["Phi"]);
-    Mu = Rcpp::as<arma::mat>(oldpars_["Mu"]);
-    sigma2 = oldpars_["sigma2"];
-  }
-  
-  //Rcpp::Rcout << 21 << std::endl;
-  
-  //if (updateZ == 1) {
-  //  Yyj = getucY(Yyj, Y, Phi, Mu, sigma2, theta_, eps);
-  //}
-  
-  Rcpp::NumericMatrix GG;
- arma::mat G_;
-  
-  if (G.isNotNull()) {
-    GG = Rcpp::as<Rcpp::NumericMatrix>(G);
-  } else {
-    G_ = getGMat(T, q);
-    GG = Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(G_));
-  }
-  
-  //Rcpp::Rcout << 2 << std::endl;
-  
-  arma::mat Z(T, 1);
-  Z.zeros();
-  
-  //////////////////////////
-  
- arma::mat Phiout(q, nsim); 
- arma::mat sigma2out(1, nsim);
- 
- arma::mat Tauout;
- arma::mat Gammaout;
- arma::mat phoout;
- if (Hflg == 1) {
-   Tauout.set_size(m, nsim);
-   Gammaout.set_size(m, nsim);
-   phoout.set_size(1, nsim);
- }
- 
- arma::mat Zetaout;
- arma::mat Betaout;
- arma::mat phobetaout;
- if (Xflg == 1) {
-   Zetaout.set_size(betap, nsim);
-   Betaout.set_size(betap, nsim);
-   phobetaout.set_size(1, nsim);
- }
-
- arma::mat mu0out(1, nsim);
- arma::mat Muout(T, nsim);
- 
- 
- arma::mat eta2out;
- arma::mat lambda2out;
- if ((method == "LASSO") || (method == "ALASSO")) {
-   eta2out.set_size(q, nsim);
-   lambda2out.set_size(q, nsim);
- }
- 
- arma::mat thetaout;
- if (updateYJ == 1) {
-   thetaout.set_size(1, nsim);
- }
- 
- arma::mat Zout;
- if ((leftcensoring == 1) || (rounding == 1)) {
-   Zout.set_size(T, nsim);
+   Z = updateZSim(Y, Z, Phi, Mu, sigma2, 
+                  theta_, tol, leftcensoring, rounding);
  }
   
   //////////////////////////
@@ -4123,10 +4126,11 @@ Rcpp::List GibbsRFLSMXYJZcpp1(arma::colvec& Y,int& q,
     //}
     
     if ((leftcensoring == 1) || (rounding == 1)) {
-      Z = updateZ0(Y, Z, Phi, Mu, sigma2, 
-                  theta_, leftcensoring, rounding, 0, 1, tol);
-      Z = updateZSim(Y, Z, Phi, Mu, sigma2, 
-                  theta_, tol, leftcensoring, rounding);
+      //Z = updateZ0(Y, Z, Phi, Mu, sigma2, 
+      //            theta_, leftcensoring, rounding, 0, 1, tol);
+      
+      Z =  updateZZ(Y, Z, Phi, Mu, sigma2, 
+                        theta_, leftcensoring, rounding, 0, 1, tol);
       Yyj = Y + Z;
     } else {
       Yyj = Y;

@@ -223,10 +223,6 @@ GibbsRFLSMXYJZcpp <- function(Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, m
     .Call(`_BayesianLASSOMonitoring_GibbsRFLSMXYJZcpp`, Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, method, monophi, bound0, boundqplus1, updateYJ, theta, leftcensoring, rounding, eps, nsim, by, burnin, tol, G, oldpars, X, H)
 }
 
-GibbsRFLSMXYJZcpp1 <- function(Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, method, monophi, bound0, boundqplus1, updateYJ, theta, leftcensoring, rounding, eps, nsim, by, burnin, tol, G = NULL, oldpars = NULL, X = NULL, H = NULL) {
-    .Call(`_BayesianLASSOMonitoring_GibbsRFLSMXYJZcpp1`, Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, method, monophi, bound0, boundqplus1, updateYJ, theta, leftcensoring, rounding, eps, nsim, by, burnin, tol, G, oldpars, X, H)
-}
-
 #' Absolute-value-constrained normal distribution
 #' 
 #' gets a sample from a normal distribution whose absolute observations are constrained.
