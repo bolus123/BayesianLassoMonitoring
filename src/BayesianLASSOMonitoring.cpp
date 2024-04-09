@@ -688,11 +688,14 @@ Rcpp::List updateTauGamma(arma::colvec tmpY,arma::colvec Phi,arma::mat Tau,arma:
       
       tmp =arma::exp(-1.0 / 2.0 / sigma2 * zetanot.t() * D * zetanot);
       tmpzetanot = tmp(0);
+      tmpzetanot = log(tmpzetanot);
       
       tmp =arma::exp(-1.0 / 2.0 / sigma2 * zetat.t() * D * zetat);
       tmpzetat = tmp(0);
+      tmpzetat = log(tmpzetat);
       
-      p = pho * tmpzetat / (pho * tmpzetat + (1 - pho) * tmpzetanot);
+      //p = pho * tmpzetat / (pho * tmpzetat + (1 - pho) * tmpzetanot
+      p = pho / (pho + (1 - pho) * exp(tmpzetanot - tmpzetat));
       
       Tau(jj) = R::rbinom(1, p);
       pvec(jj) = p;
@@ -817,11 +820,15 @@ Rcpp::List updateZetaBeta(arma::colvec tmpY,arma::colvec Phi,arma::mat Zeta,arma
       
       tmp =arma::exp(-1.0 / 2.0 / sigma2 * zetanot.t() * D * zetanot);
       tmpzetanot = tmp(0);
+      tmpzetanot = log(tmpzetanot);
       
       tmp =arma::exp(-1.0 / 2.0 / sigma2 * zetat.t() * D * zetat);
       tmpzetat = tmp(0);
+      tmpzetat = log(tmpzetat);
       
-      p = pho * tmpzetat / (pho * tmpzetat + (1 - pho) * tmpzetanot);
+      //p = pho * tmpzetat / (pho * tmpzetat + (1 - pho) * tmpzetanot);
+      p = pho / (pho + (1 - pho) * exp(tmpzetanot - tmpzetat));
+      
       
       Zeta(jj) = R::rbinom(1, p);
       pvec(jj) = p;
@@ -1864,12 +1871,12 @@ arma::mat lhYJf(arma::colvec Y,arma::mat Phi,arma::mat Mu, double sigma2, double
 //' @examples
 //' rtwosegnorm(10, 1, 2, 0, 1)
 // [[Rcpp::export]]
-arma::mat llhYJf(arma::colvec Y,arma::mat Phi,arma::mat Mu, double sigma2, double theta) {
+arma::mat llhYJf(arma::colvec Y,arma::mat Phi,arma::mat Mu, double sigma2, double theta, double eps) {
   
   int T = Y.n_elem;
   int q = Phi.n_rows;
   
- arma::colvec Yyj = yeojohnsontr(Y, theta, 0.000001);
+ arma::colvec Yyj = yeojohnsontr(Y, theta, eps);
  arma::mat lh = lhf(Yyj, Phi, Mu, sigma2);
   
  arma::mat llhYJ = arma::log(lh);
@@ -2033,7 +2040,7 @@ arma::mat updatethetaYJMH(arma::colvec Y,arma::mat Phi,arma::mat Mu, double sigm
   
  arma::mat thetaout(nsim, 1); 
   
- arma::mat oldllhYJ = llhYJf(Y, Phi, Mu, sigma2, oldtheta_);
+ arma::mat oldllhYJ = llhYJf(Y, Phi, Mu, sigma2, oldtheta_, tol);
 
  arma::mat newllhYJ = oldllhYJ; 
 
@@ -2046,7 +2053,7 @@ arma::mat updatethetaYJMH(arma::colvec Y,arma::mat Phi,arma::mat Mu, double sigm
   for (i = 0; i < (nsim + burnin); i++) {
     u = R::runif(0.0, 1.0);
     thetaas = R::rnorm(oldtheta_, 0.1);
-    newllhYJ = llhYJf(Y, Phi, Mu, sigma2, thetaas);
+    newllhYJ = llhYJf(Y, Phi, Mu, sigma2, thetaas, tol);
     tmp = arma::accu(newllhYJ - oldllhYJ);
     tmp = tmp + R::dnorm4(thetaas, 1, 0.1, 1) - R::dnorm4(oldtheta_, 1, 0.1, 1);
       //(log(1 / sqrt(1.0 / 2.0 / pi) * exp(- 1.0 / 2.0 * thetaas * thetaas)) - 
@@ -2067,6 +2074,49 @@ arma::mat updatethetaYJMH(arma::colvec Y,arma::mat Phi,arma::mat Mu, double sigm
   }
   
   return(thetaout);
+  
+}
+
+// [[Rcpp::export]]
+Rcpp::List updateKappaTheta(arma::colvec Y,arma::mat Phi,arma::mat Mu, double sigma2, 
+                        double oldkappa, double oldtheta, int burnin, int nsim, double tol) {
+  
+  double pi = 3.14159265359;
+  
+  int T = Y.n_elem;
+  int q = Phi.n_rows;
+  
+  double u;
+  double oldtheta_ = oldtheta;
+  double thetaas;
+  arma::mat tmpmat;
+  double A;
+  
+ arma::mat thetaout(nsim, 1); 
+  
+ arma::mat oldllhYJ = llhYJf(Y, Phi, Mu, sigma2, oldtheta_, tol);
+ arma::mat oldllhYJ1 = llhYJf(Y, Phi, Mu, sigma2, 1.0, tol);
+ 
+ double tmp = arma::accu(oldllhYJ1 - oldllhYJ);
+ double p = 0.5 / (0.5 + (1 - 0.5) * exp(tmp));
+ 
+ double Kappa = R::rbinom(1, p);
+ 
+ if (Kappa == 1.0) {
+   tmpmat = updatethetaYJMH(Y, Phi, Mu, sigma2, 
+                         oldtheta, 0, 1, tol);
+   thetaas = tmpmat(0);
+ } else {
+   thetaas = R::rnorm(1, 0.1);
+ }
+ 
+ Rcpp::List out;
+ out = Rcpp::List::create(
+   Rcpp::_["Kappa"] = Kappa,
+   Rcpp::_["Theta"] = thetaas
+ );
+  
+ return(out);
   
 }
 
@@ -2541,7 +2591,7 @@ arma::mat updateZt(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu, d
   arma::colvec oldYZ = Y + oldZ;
   arma::colvec newYZ = Y + newZ;
   
-  arma::mat oldllhYJ = llhYJf(oldYZ, Phi, Mu, sigma2, theta);
+  arma::mat oldllhYJ = llhYJf(oldYZ, Phi, Mu, sigma2, theta, tol);
   arma::mat newllhYJ = oldllhYJ; 
  
   double lbl = -(1.0) * arma::datum::inf;
@@ -2565,7 +2615,16 @@ arma::mat updateZt(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu, d
   if (leftcensoring == 1) {
     if (Y(t) <= 0) {
       lb = lbl;
+      ub = ubl;
+      flgr = 1;
+    }
+  }
+  
+  if ((leftcensoring == 1) && ((rounding == 1))) {
+    if (Y(t) <= 0) {
+      lb = lbl;
       ub = ubr;
+      flgl = 1;
       flgr = 1;
     }
   }
@@ -2585,12 +2644,12 @@ arma::mat updateZt(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu, d
       newZ(t) = newZt;
       newYZ = Y + newZ;
       
-      newllhYJ = llhYJf(newYZ, Phi, Mu, sigma2, theta);
+      newllhYJ = llhYJf(newYZ, Phi, Mu, sigma2, theta, tol);
       
       tmp = arma::accu(newllhYJ - oldllhYJ);
-      //tmp = tmp + log(dtrnorm(newZt, 0.0, 0.1, lb, ub)) - log(dtrnorm(oldZt, 0.0, 0.1, lb, ub)) -
-      //  (log(dtrnorm(newZt, oldZt, 0.1, lb, ub)) - log(dtrnorm(oldZt, newZt, 0.1, lb, ub)));
-      tmp = tmp - (log(dtrnorm(newZt, oldZt, 0.1, lb, ub)) - log(dtrnorm(oldZt, newZt, 0.1, lb, ub)));
+      tmp = tmp + log(dtrnorm(newZt, 0.0, 0.1, lb, ub)) - log(dtrnorm(oldZt, 0.0, 0.1, lb, ub)) -
+        (log(dtrnorm(newZt, oldZt, 0.1, lb, ub)) - log(dtrnorm(oldZt, newZt, 0.1, lb, ub)));
+      //tmp = tmp - (log(dtrnorm(newZt, oldZt, 0.1, lb, ub)) - log(dtrnorm(oldZt, newZt, 0.1, lb, ub)));
       pd = exp(tmp(0));
       
       A = std::min(1.0, pd);
@@ -3680,6 +3739,8 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
   
   double sigma2 = 1.0;
   double theta_ = theta;
+  //double theta0 = theta;
+  //double kappa = 0.0;
  arma::mat tmp; 
   
   //Rcpp::Rcout << 1 << std::endl;
@@ -3766,13 +3827,20 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
  }
  
  arma::mat thetaout;
+ //arma::mat kappaout;
  if (updateYJ == 1) {
    thetaout.set_size(1, nsim);
+   //kappaout.set_size(1, nsim);
  }
+ 
+ Rcpp::List tmpList;
  
  arma::mat Zout;
  if ((leftcensoring == 1) || (rounding == 1)) {
    Zout.set_size(T, nsim);
+   
+   Z = updateZSim(Y, Z, Phi, Mu, sigma2, 
+                  theta_, tol, leftcensoring, rounding);
  }
   
   //////////////////////////
@@ -3807,6 +3875,15 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
       //                        theta_, 1, 1, tol);
       tmp = updatethetaYJMH(Yyj, Phi, Mu, sigma2, 
                               theta_, 0, 1, tol);
+      
+      //tmpList = updateKappaTheta(Yyj, Phi, Mu, sigma2, 
+      //                        kappa, theta0, 0, 1, tol);
+      
+      //Rcpp::Rcout << 3 << std::endl;
+      
+      //kappa = tmpList["Kappa"];
+      //theta0 = tmpList["Theta"];
+      //theta_ = pow(theta0, kappa);
       theta_ = tmp(0);
       //Rcpp::Rcout << theta_ << std::endl;
       Yyj = yeojohnsontr(Yyj, theta_, eps);
@@ -3894,6 +3971,7 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
         
         if (updateYJ == 1) {
           thetaout.col(rr) = theta_;
+          //kappaout.col(rr) = kappa;
         }
         //Yyjout.col(rr) = Yyj;
         
@@ -3931,6 +4009,7 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
     _["eta2"] = eta2out,
     _["lambda2"] = lambda2out,
     _["theta"] = thetaout,
+    //_["kappa"] = kappaout,
     _["Z"] = Zout
     //_["Yyj"] = Yyjout
   );
