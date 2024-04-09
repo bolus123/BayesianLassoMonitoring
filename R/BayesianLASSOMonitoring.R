@@ -469,7 +469,7 @@ Ph1MultipleTesting.Y01 <- function(model, FAP0 = 0.2, side = "right-sided",
     }
     
     for (i in 1:nsim) {
-      sig[, i] <- (lim[, 1] <= ph1mat[, i]) & (ph1mat[, i] <= lim[, 2])
+      sig[, i] <- (lim[, 1] < ph1mat[, i]) & (ph1mat[, i] < lim[, 2])
     }
     
     tmp <- mean(colSums(sig) == n)
@@ -514,7 +514,7 @@ Ph1MultipleTesting.Y01 <- function(model, FAP0 = 0.2, side = "right-sided",
     }
   }
   
-  sig <- 1 - ((lim[, 1] <= model$Y[-c(1:q)]) & (model$Y[-c(1:q)] <= lim[, 2]))
+  sig <- 1 - ((lim[, 1] < model$Y[-c(1:q)]) & (model$Y[-c(1:q)] < lim[, 2]))
   
   list("grandsig" = sum(sig) > 0, "sig" = sig, "lim" = lim, "adj.alpha" = adj.alpha, 
        "Yph1" = ph1mat)
