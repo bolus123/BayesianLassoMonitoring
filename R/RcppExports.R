@@ -151,8 +151,8 @@ lhYJf <- function(Y, Phi, Mu, sigma2, theta) {
 #' @export
 #' @examples
 #' rtwosegnorm(10, 1, 2, 0, 1)
-llhYJf <- function(Y, Phi, Mu, sigma2, theta) {
-    .Call(`_BayesianLASSOMonitoring_llhYJf`, Y, Phi, Mu, sigma2, theta)
+llhYJf <- function(Y, Phi, Mu, sigma2, theta, eps) {
+    .Call(`_BayesianLASSOMonitoring_llhYJf`, Y, Phi, Mu, sigma2, theta, eps)
 }
 
 thetaBoxCoxMH <- function(Y, Phi, Mu, sigma2, oldtheta, burnin, nsim, tol) {
@@ -165,6 +165,10 @@ thetaYeoJohnsonMH <- function(Y, Phi, Mu, sigma2, oldtheta, burnin, nsim, tol) {
 
 updatethetaYJMH <- function(Y, Phi, Mu, sigma2, oldtheta, burnin, nsim, tol) {
     .Call(`_BayesianLASSOMonitoring_updatethetaYJMH`, Y, Phi, Mu, sigma2, oldtheta, burnin, nsim, tol)
+}
+
+updateKappaTheta <- function(Y, Phi, Mu, sigma2, oldkappa, oldtheta, burnin, nsim, tol) {
+    .Call(`_BayesianLASSOMonitoring_updateKappaTheta`, Y, Phi, Mu, sigma2, oldkappa, oldtheta, burnin, nsim, tol)
 }
 
 GibbsRFLSMBoxCoxcpp <- function(Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, method, bound0, boundqplus1, updateBC, theta, nsim, by, burnin, tol, G = NULL, oldpars = NULL, H = NULL) {

@@ -4,7 +4,7 @@
 \alias{llhYJf}
 \title{Absolute-value-constrained normal distribution}
 \usage{
-llhYJf(Y, Phi, Mu, sigma2, theta)
+llhYJf(Y, Phi, Mu, sigma2, theta, eps)
 }
 \arguments{
 \item{n}{is sample size.}

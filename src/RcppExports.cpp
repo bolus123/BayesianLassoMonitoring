@@ -277,8 +277,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // llhYJf
-arma::mat llhYJf(arma::colvec Y, arma::mat Phi, arma::mat Mu, double sigma2, double theta);
-RcppExport SEXP _BayesianLASSOMonitoring_llhYJf(SEXP YSEXP, SEXP PhiSEXP, SEXP MuSEXP, SEXP sigma2SEXP, SEXP thetaSEXP) {
+arma::mat llhYJf(arma::colvec Y, arma::mat Phi, arma::mat Mu, double sigma2, double theta, double eps);
+RcppExport SEXP _BayesianLASSOMonitoring_llhYJf(SEXP YSEXP, SEXP PhiSEXP, SEXP MuSEXP, SEXP sigma2SEXP, SEXP thetaSEXP, SEXP epsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -287,7 +287,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat >::type Mu(MuSEXP);
     Rcpp::traits::input_parameter< double >::type sigma2(sigma2SEXP);
     Rcpp::traits::input_parameter< double >::type theta(thetaSEXP);
-    rcpp_result_gen = Rcpp::wrap(llhYJf(Y, Phi, Mu, sigma2, theta));
+    Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
+    rcpp_result_gen = Rcpp::wrap(llhYJf(Y, Phi, Mu, sigma2, theta, eps));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -342,6 +343,25 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type nsim(nsimSEXP);
     Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
     rcpp_result_gen = Rcpp::wrap(updatethetaYJMH(Y, Phi, Mu, sigma2, oldtheta, burnin, nsim, tol));
+    return rcpp_result_gen;
+END_RCPP
+}
+// updateKappaTheta
+Rcpp::List updateKappaTheta(arma::colvec Y, arma::mat Phi, arma::mat Mu, double sigma2, double oldkappa, double oldtheta, int burnin, int nsim, double tol);
+RcppExport SEXP _BayesianLASSOMonitoring_updateKappaTheta(SEXP YSEXP, SEXP PhiSEXP, SEXP MuSEXP, SEXP sigma2SEXP, SEXP oldkappaSEXP, SEXP oldthetaSEXP, SEXP burninSEXP, SEXP nsimSEXP, SEXP tolSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::colvec >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Phi(PhiSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Mu(MuSEXP);
+    Rcpp::traits::input_parameter< double >::type sigma2(sigma2SEXP);
+    Rcpp::traits::input_parameter< double >::type oldkappa(oldkappaSEXP);
+    Rcpp::traits::input_parameter< double >::type oldtheta(oldthetaSEXP);
+    Rcpp::traits::input_parameter< int >::type burnin(burninSEXP);
+    Rcpp::traits::input_parameter< int >::type nsim(nsimSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    rcpp_result_gen = Rcpp::wrap(updateKappaTheta(Y, Phi, Mu, sigma2, oldkappa, oldtheta, burnin, nsim, tol));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -765,10 +785,11 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BayesianLASSOMonitoring_yeojohnsontr", (DL_FUNC) &_BayesianLASSOMonitoring_yeojohnsontr, 3},
     {"_BayesianLASSOMonitoring_lhBCf", (DL_FUNC) &_BayesianLASSOMonitoring_lhBCf, 5},
     {"_BayesianLASSOMonitoring_lhYJf", (DL_FUNC) &_BayesianLASSOMonitoring_lhYJf, 5},
-    {"_BayesianLASSOMonitoring_llhYJf", (DL_FUNC) &_BayesianLASSOMonitoring_llhYJf, 5},
+    {"_BayesianLASSOMonitoring_llhYJf", (DL_FUNC) &_BayesianLASSOMonitoring_llhYJf, 6},
     {"_BayesianLASSOMonitoring_thetaBoxCoxMH", (DL_FUNC) &_BayesianLASSOMonitoring_thetaBoxCoxMH, 8},
     {"_BayesianLASSOMonitoring_thetaYeoJohnsonMH", (DL_FUNC) &_BayesianLASSOMonitoring_thetaYeoJohnsonMH, 8},
     {"_BayesianLASSOMonitoring_updatethetaYJMH", (DL_FUNC) &_BayesianLASSOMonitoring_updatethetaYJMH, 8},
+    {"_BayesianLASSOMonitoring_updateKappaTheta", (DL_FUNC) &_BayesianLASSOMonitoring_updateKappaTheta, 9},
     {"_BayesianLASSOMonitoring_GibbsRFLSMBoxCoxcpp", (DL_FUNC) &_BayesianLASSOMonitoring_GibbsRFLSMBoxCoxcpp, 22},
     {"_BayesianLASSOMonitoring_rtrnorm", (DL_FUNC) &_BayesianLASSOMonitoring_rtrnorm, 5},
     {"_BayesianLASSOMonitoring_GibbsRFLSMYeoJohnsonZcpp", (DL_FUNC) &_BayesianLASSOMonitoring_GibbsRFLSMYeoJohnsonZcpp, 24},
