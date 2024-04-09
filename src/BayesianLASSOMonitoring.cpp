@@ -2055,7 +2055,7 @@ arma::mat updatethetaYJMH(arma::colvec Y,arma::mat Phi,arma::mat Mu, double sigm
     thetaas = R::rnorm(oldtheta_, 0.1);
     newllhYJ = llhYJf(Y, Phi, Mu, sigma2, thetaas, tol);
     tmp = arma::accu(newllhYJ - oldllhYJ);
-    tmp = tmp + R::dnorm4(thetaas, 1, 0.1, 1) - R::dnorm4(oldtheta_, 1, 0.1, 1);
+    tmp = tmp + R::dnorm4(thetaas, 1, 0.01, 1) - R::dnorm4(oldtheta_, 1, 0.01, 1);
       //(log(1 / sqrt(1.0 / 2.0 / pi) * exp(- 1.0 / 2.0 * thetaas * thetaas)) - 
       //log(1 / sqrt(1.0 / 2.0 / pi) * exp(- 1.0 / 2.0 * oldtheta_ * oldtheta_)));
     pd = exp(tmp(0));
@@ -2647,7 +2647,7 @@ arma::mat updateZt(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu, d
       newllhYJ = llhYJf(newYZ, Phi, Mu, sigma2, theta, tol);
       
       tmp = arma::accu(newllhYJ - oldllhYJ);
-      tmp = tmp + log(dtrnorm(newZt, 0.0, 0.1, lb, ub)) - log(dtrnorm(oldZt, 0.0, 0.1, lb, ub)) -
+      tmp = tmp + log(dtrnorm(newZt, 0.0, 0.01, lb, ub)) - log(dtrnorm(oldZt, 0.0, 0.01, lb, ub)) -
         (log(dtrnorm(newZt, oldZt, 0.1, lb, ub)) - log(dtrnorm(oldZt, newZt, 0.1, lb, ub)));
       //tmp = tmp - (log(dtrnorm(newZt, oldZt, 0.1, lb, ub)) - log(dtrnorm(oldZt, newZt, 0.1, lb, ub)));
       pd = exp(tmp(0));
