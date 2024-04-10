@@ -526,6 +526,180 @@ Ph1MultipleTesting.Y01 <- function(model, FAP0 = 0.2, side = "right-sided",
   
 }
 
+
+#' Bayesian LASSO Phase I Monitoring
+#' 
+#' gets a posterior sample using Gibbs sampling for Random Flexible Level Shift Model
+#' @param model is model.
+#' @param nsim is .
+#' @param FAP0 is 
+#' @param log is model.
+#' @param const is .
+#' @param sta is 
+#' 
+#' 
+#' @export
+Ph1MultipleTesting.YJSum <- function(model, FAP0 = 0.2, side = "right-sided", 
+                                   updateYJ = 1, leftcensoring = 1, rounding = 1, eps = 1e-32,
+                                   backtr = 1, nsim = 10000) {
+  
+  Y <- model$Y
+  
+  q <- dim(model$Phi)[1]
+  n <- length(model$Y)
+  nnsim <- dim(model$Phi)[2]
+  
+  ph1mat <- matrix(NA, nrow = n - q, ncol = nsim)
+  
+  for (i in 1:nsim) {
+    tmpsel <- sample(1:nnsim, 1)
+    Mu0 <- matrix(rep(model$mu0[tmpsel], n))
+    if (!is.null(model$X)) {
+      Mu0 <- Mu0 + model$X %*% (model$Beta[, tmpsel] * model$Zeta[, tmpsel])
+    }
+    ph1mat[, i] <- simYph2(0, as.matrix(model$Y), as.matrix(model$Z[, tmpsel]), as.matrix(model$Phi[, tmpsel]),
+                           Mu0, model$sigma2[tmpsel], updateYJ, model$theta[tmpsel], 
+                           leftcensoring, rounding, eps, backtr)
+  }
+  
+  mm <- rowMeans(ph1mat)
+  ss <- apply(ph1mat, 1, sd)
+  
+  dd2 <- matrix(NA, nrow = n - q, ncol = nsim)
+  for (i in 1:nsim) {
+    dd2[, i] <- ((ph1mat[, i] - mm) / ss) ^2
+  }
+  
+  if (side == "left-sided") {
+    for (i in 1:(n - q)) {
+      dd2[i, which(ph1mat[i, ] > mm[i])] <- 0
+    }
+  } else if (side == "right-sided") {
+    for (i in 1:(n - q)) {
+      dd2[i, which(ph1mat[i, ] < mm[i])] <- 0
+    }
+  }
+  
+  dd3 <- colSums(dd2)
+  dd31<- quantile(dd3, 1 - FAP0)
+  
+  dd4 <- ((Y[-c(1:q)] - mm) / ss)^2
+  
+  if (side == "left-sided") {
+    for (i in 1:(n - q)) {
+      dd4[which(Y[-c(1:q)] > mm)] <- 0
+    }
+  } else if (side == "right-sided") {
+    for (i in 1:(n - q)) {
+      dd4[which(Y[-c(1:q)] < mm)] <- 0
+    }
+  }
+  
+  dd5 <- sum(dd4)
+  
+  grandsig <- FALSE
+  if (dd5 > dd31) {
+    grandsig <- TRUE
+  }
+  
+  lim <- apply(dd2, 1, quantile, (1 - FAP0) ^ (1 / (n - q)))
+  sig <- dd4 > lim
+  
+  names(dd31) = NULL
+  
+  list("grandsig" = grandsig, "grandstat" = dd5, "grandlim" = dd31, "pvalue" = 1 - mean(dd5 > dd3),
+       "sig" = sig, "cs" = dd4, "lim" = lim, "pvalues" = 1 - rowMeans(dd4 > dd2), "Yph1" = ph1mat)
+  
+}
+
+
+#' Bayesian LASSO Phase I Monitoring
+#' 
+#' gets a posterior sample using Gibbs sampling for Random Flexible Level Shift Model
+#' @param model is model.
+#' @param nsim is .
+#' @param FAP0 is 
+#' @param log is model.
+#' @param const is .
+#' @param sta is 
+#' 
+#' 
+#' @export
+Ph1MultipleTesting.YJMax <- function(model, FAP0 = 0.2, side = "right-sided", 
+                                   updateYJ = 1, leftcensoring = 1, rounding = 1, eps = 1e-32,
+                                   backtr = 1, nsim = 10000) {
+  
+  Y <- model$Y
+  
+  q <- dim(model$Phi)[1]
+  n <- length(model$Y)
+  nnsim <- dim(model$Phi)[2]
+  
+  ph1mat <- matrix(NA, nrow = n - q, ncol = nsim)
+  
+  for (i in 1:nsim) {
+    tmpsel <- sample(1:nnsim, 1)
+    Mu0 <- matrix(rep(model$mu0[tmpsel], n))
+    if (!is.null(model$X)) {
+      Mu0 <- Mu0 + model$X %*% (model$Beta[, tmpsel] * model$Zeta[, tmpsel])
+    }
+    ph1mat[, i] <- simYph2(0, as.matrix(model$Y), as.matrix(model$Z[, tmpsel]), as.matrix(model$Phi[, tmpsel]),
+                           Mu0, model$sigma2[tmpsel], updateYJ, model$theta[tmpsel], 
+                           leftcensoring, rounding, eps, backtr)
+  }
+  
+  mm <- rowMeans(ph1mat)
+  ss <- apply(ph1mat, 1, sd)
+  
+  dd2 <- matrix(NA, nrow = n - q, ncol = nsim)
+  for (i in 1:nsim) {
+    dd2[, i] <- ((ph1mat[, i] - mm) / ss) ^2
+  }
+  
+  if (side == "left-sided") {
+    for (i in 1:(n - q)) {
+      dd2[i, which(ph1mat[i, ] > mm[i])] <- 0
+    }
+  } else if (side == "right-sided") {
+    for (i in 1:(n - q)) {
+      dd2[i, which(ph1mat[i, ] < mm[i])] <- 0
+    }
+  }
+  
+  dd3 <- apply(dd2, 2, max)
+  dd31<- quantile(dd3, 1 - FAP0)
+  
+  dd4 <- ((Y[-c(1:q)] - mm) / ss)^2
+  
+  if (side == "left-sided") {
+    for (i in 1:(n - q)) {
+      dd4[which(Y[-c(1:q)] > mm)] <- 0
+    }
+  } else if (side == "right-sided") {
+    for (i in 1:(n - q)) {
+      dd4[which(Y[-c(1:q)] < mm)] <- 0
+    }
+  }
+  
+  dd5 <- max(dd4)
+  
+  grandsig <- FALSE
+  if (dd5 > dd31) {
+    grandsig <- TRUE
+  }
+  
+  lim <- dd31
+  sig <- dd4 > lim
+  
+  names(dd31) = NULL
+  
+  list("grandsig" = grandsig, "grandstat" = dd5, "grandlim" = dd31, "pvalue" = 1 - mean(dd5 > dd3), 
+       "sig" = sig, "cs" = dd4, "lim" = dd31, "pvalues" = 1 - rowMeans(dd4 > dd2), "Yph1" = ph1mat)
+  
+}
+
+
+
 #' Bayesian LASSO Phase I Monitoring
 #' 
 #' gets a posterior sample using Gibbs sampling for Random Flexible Level Shift Model
