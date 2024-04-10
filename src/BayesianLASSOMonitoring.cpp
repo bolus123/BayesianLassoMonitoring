@@ -4620,23 +4620,3 @@ arma::colvec simYph2(int h, arma::colvec Y, arma::colvec Z, arma::colvec Phi,arm
 }
 
 
-//' Absolute-value-constrained normal distribution
-//' 
-//' gets a sample from a normal distribution whose absolute observations are constrained.
-//'
-//' @param n is sample size.
-//' @export
-//' @examples
-//' rtwosegnorm(10, 1, 2, 0, 1)
-// [[Rcpp::export]]
-arma::colvec simllhYJ(int h, arma::colvec Y, arma::colvec Z, arma::colvec Phi,arma::colvec Mu, double sigma2, 
-                     int updateYJ, double theta, int leftcensoring, int rounding, double eps) {
-  
-  arma::colvec newY = simYph2(h, Y, Z, Phi, Mu, sigma2, 
-                     updateYJ, theta, leftcensoring, rounding, eps, 1);
-  
-  arma::colvec llh = llhYJf(newY, Phi, Mu, sigma2, theta, eps);
-  
-  return(llh);
-  
-}
