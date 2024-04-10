@@ -4596,13 +4596,16 @@ arma::colvec simYph2(int h, arma::colvec Y, arma::colvec Z, arma::colvec Phi,arm
   
   arma::colvec Yph2 = Yyjph2;
   
-  if (backtr == 1) {
+  
     if (updateYJ == 1) {
-      arma::colvec Yph2 = invyeojohnsontr(Yph2, theta, eps); 
+      Yph2 = invyeojohnsontr(Yph2, theta, eps); 
     //Rcpp::Rcout << 3 << std::endl;
     }
+   
+   arma::uvec ind0;
+   
+   if (backtr == 1) { 
     
-    arma::uvec ind0;
     if ((leftcensoring == 1)) {
       ind0 =arma::find(Yph2 <= 0.0); 
       Yph2(ind0).fill(0.0);
