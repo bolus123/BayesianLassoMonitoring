@@ -12,8 +12,10 @@ Ph1MultipleTesting.Y01(
   leftcensoring = 1,
   rounding = 1,
   eps = 1e-32,
+  backtr = 1,
   nsim = 10000,
-  interval = c(1e-06, 0.499999)
+  interval = c(1e-06, 0.499999),
+  verbose = 0
 )
 }
 \arguments{

@@ -299,7 +299,7 @@ simYyjph2 <- function(h, Yyjph1, Phi, Mu, sigma2) {
 #' @export
 #' @examples
 #' rtwosegnorm(10, 1, 2, 0, 1)
-simYph2 <- function(h, Y, Z, Phi, Mu, sigma2, updateYJ, theta, leftcensoring, rounding, eps) {
-    .Call(`_BayesianLASSOMonitoring_simYph2`, h, Y, Z, Phi, Mu, sigma2, updateYJ, theta, leftcensoring, rounding, eps)
+simYph2 <- function(h, Y, Z, Phi, Mu, sigma2, updateYJ, theta, leftcensoring, rounding, eps, backtr) {
+    .Call(`_BayesianLASSOMonitoring_simYph2`, h, Y, Z, Phi, Mu, sigma2, updateYJ, theta, leftcensoring, rounding, eps, backtr)
 }
 

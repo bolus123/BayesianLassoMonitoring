@@ -15,7 +15,8 @@ simYph2(
   theta,
   leftcensoring,
   rounding,
-  eps
+  eps,
+  backtr
 )
 }
 \arguments{

@@ -745,8 +745,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // simYph2
-arma::colvec simYph2(int h, arma::colvec Y, arma::colvec Z, arma::colvec Phi, arma::colvec Mu, double sigma2, int updateYJ, double theta, int leftcensoring, int rounding, double eps);
-RcppExport SEXP _BayesianLASSOMonitoring_simYph2(SEXP hSEXP, SEXP YSEXP, SEXP ZSEXP, SEXP PhiSEXP, SEXP MuSEXP, SEXP sigma2SEXP, SEXP updateYJSEXP, SEXP thetaSEXP, SEXP leftcensoringSEXP, SEXP roundingSEXP, SEXP epsSEXP) {
+arma::colvec simYph2(int h, arma::colvec Y, arma::colvec Z, arma::colvec Phi, arma::colvec Mu, double sigma2, int updateYJ, double theta, int leftcensoring, int rounding, double eps, int backtr);
+RcppExport SEXP _BayesianLASSOMonitoring_simYph2(SEXP hSEXP, SEXP YSEXP, SEXP ZSEXP, SEXP PhiSEXP, SEXP MuSEXP, SEXP sigma2SEXP, SEXP updateYJSEXP, SEXP thetaSEXP, SEXP leftcensoringSEXP, SEXP roundingSEXP, SEXP epsSEXP, SEXP backtrSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -761,7 +761,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type leftcensoring(leftcensoringSEXP);
     Rcpp::traits::input_parameter< int >::type rounding(roundingSEXP);
     Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
-    rcpp_result_gen = Rcpp::wrap(simYph2(h, Y, Z, Phi, Mu, sigma2, updateYJ, theta, leftcensoring, rounding, eps));
+    Rcpp::traits::input_parameter< int >::type backtr(backtrSEXP);
+    rcpp_result_gen = Rcpp::wrap(simYph2(h, Y, Z, Phi, Mu, sigma2, updateYJ, theta, leftcensoring, rounding, eps, backtr));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -806,7 +807,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BayesianLASSOMonitoring_simYyjph1", (DL_FUNC) &_BayesianLASSOMonitoring_simYyjph1, 4},
     {"_BayesianLASSOMonitoring_simYph1", (DL_FUNC) &_BayesianLASSOMonitoring_simYph1, 6},
     {"_BayesianLASSOMonitoring_simYyjph2", (DL_FUNC) &_BayesianLASSOMonitoring_simYyjph2, 5},
-    {"_BayesianLASSOMonitoring_simYph2", (DL_FUNC) &_BayesianLASSOMonitoring_simYph2, 11},
+    {"_BayesianLASSOMonitoring_simYph2", (DL_FUNC) &_BayesianLASSOMonitoring_simYph2, 12},
     {NULL, NULL, 0}
 };
 

@@ -1,7 +1,7 @@
 [
     {
         "file": "/Users/yuihuiyao/Documents/GitHub/BayesianLASSOMonitoring/src/BayesianLASSOMonitoring.cpp",
-        "file_last_write": 1712689902.0,
+        "file_last_write": 1712761869.0,
         "definitions": [
             {
                 "usr": "c:BayesianLASSOMonitoring.cpp@156@macro@ARMA_WARN_LEVEL",
@@ -604,10 +604,10 @@
                 "hidden": false
             },
             {
-                "usr": "c:@F@simYph2#I#$@N@arma@S@Col>#d#S0_#S0_#S0_#d#I#d#I#I#d#",
+                "usr": "c:@F@simYph2#I#$@N@arma@S@Col>#d#S0_#S0_#S0_#d#I#d#I#I#d#I#",
                 "kind": 6,
                 "parent_name": "",
-                "name": "simYph2(int, arma::colvec, arma::colvec, arma::colvec, arma::colvec, double, int, double, int, int, double)",
+                "name": "simYph2(int, arma::colvec, arma::colvec, arma::colvec, arma::colvec, double, int, double, int, int, double, int)",
                 "file": "/Users/yuihuiyao/Documents/GitHub/BayesianLASSOMonitoring/src/BayesianLASSOMonitoring.cpp",
                 "line": 4581,
                 "column": 14,
