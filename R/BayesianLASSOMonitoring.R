@@ -448,9 +448,9 @@ Ph1MultipleTesting.Y0tr <- function(model, FAP0 = 0.2, side = "right-sided", nsi
 #' @export
 Ph1MultipleTesting.Y01 <- function(model, FAP0 = 0.2, side = "right-sided", 
                                    updateYJ = 1, leftcensoring = 1, rounding = 1, eps = 1e-32,
-                                   nsim = 10000, interval = c(0.000001, 0.499999)) {
+                                   nsim = 10000, interval = c(0.000001, 0.499999), verbose = 0) {
   
-  root.finding <- function(adj.alpha, ph1mat, FAP0, n, nsim, side = "right-sided") {
+  root.finding <- function(adj.alpha, ph1mat, FAP0, n, nsim, side = "right-sided", verbose = 0) {
     
     lim <- matrix(NA, nrow = n, ncol = 2)
     sig <- matrix(NA, nrow = n, ncol = nsim)
@@ -474,7 +474,12 @@ Ph1MultipleTesting.Y01 <- function(model, FAP0 = 0.2, side = "right-sided",
     
     tmp <- mean(colSums(sig) == n)
     dif <- tmp - (1 - FAP0)
-    ##cat("dif:", dif, "\n")
+    
+    if (verbose == 1) {
+      cat("FAP0:", 1 - tmp, "\n")
+      cat("diff:", dif, "\n")
+    }
+  
     return(dif)
   }
   
@@ -496,7 +501,7 @@ Ph1MultipleTesting.Y01 <- function(model, FAP0 = 0.2, side = "right-sided",
   }
   
   adj.alpha <- uniroot(root.finding, interval, ph1mat = ph1mat, FAP0 = FAP0, n = n - q, nsim = nsim, side = side, 
-          tol = 1e-6)$root
+          tol = 1e-6, verbose = verbose)$root
   
   lim <- matrix(NA, nrow = n - q, ncol = 2)
   sig <- matrix(NA, nrow = n - q, ncol = 1)
