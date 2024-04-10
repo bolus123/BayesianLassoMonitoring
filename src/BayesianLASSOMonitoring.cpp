@@ -3695,7 +3695,14 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
   auto start = std::chrono::system_clock::now();
   std::time_t start_time = std::chrono::system_clock::to_time_t(start);
   
-  Rcpp::Rcout << "Start training using " << method.get_cstring() << " at " << std::ctime(&start_time) <<  std::endl;
+  if (monophi == 1) {
+    Rcpp::Rcout << "Start training using " << method.get_cstring() << "with monotonicity constraints" << " at " << std::ctime(&start_time) <<  std::endl;
+  
+  } else {
+    Rcpp::Rcout << "Start training using " << method.get_cstring() << "without monotonicity constraints" << " at " << std::ctime(&start_time) <<  std::endl;
+  
+  }
+  
   
   ///////////////////////////////////
   
