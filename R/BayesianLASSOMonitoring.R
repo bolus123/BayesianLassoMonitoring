@@ -907,7 +907,7 @@ Ph1MultipleTesting.Y01Ma <- function(model, w = 7, FAP0 = 0.2, side = "right-sid
 #' 
 #' 
 #' @export
-Ph1MultipleTesting.Y01L1 <- function(model, hw = 7, FAP0 = 0.2, side = "right-sided", 
+Ph1MultipleTesting.Y01L1 <- function(model, w = 7, FAP0 = 0.2, side = "right-sided", 
                                    updateYJ = 1, leftcensoring = 1, rounding = 1, eps = 1e-32,
                                    backtr = 1, nsim = 10000, interval = c(0.000001, 0.499999), verbose = 0) {
   
@@ -961,7 +961,7 @@ Ph1MultipleTesting.Y01L1 <- function(model, hw = 7, FAP0 = 0.2, side = "right-si
                            leftcensoring, rounding, eps, backtr)
   }
   
-  w <- 1 + hw * 2
+  ##w <- 1 + hw * 2
   
   mm <- apply(ph1mat, 1, median, na.rm = TRUE)
   dd <- ph1mat - mm
