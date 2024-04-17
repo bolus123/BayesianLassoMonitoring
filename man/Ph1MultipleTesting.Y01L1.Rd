@@ -6,7 +6,7 @@
 \usage{
 Ph1MultipleTesting.Y01L1(
   model,
-  hw = 7,
+  w = 7,
   FAP0 = 0.2,
   side = "right-sided",
   updateYJ = 1,
