@@ -1124,15 +1124,30 @@ Ph1MultipleTesting.Y01MH <- function(model, w = 7, FAP0 = 0.2, side = "right-sid
   ee2 <- matrix(NA, nrow = n - q, ncol = nsim)
   
   for (i in w:(n - q)) {
-    rowvar[, , i] <- var(t(ph1mat[(i - (w - 1)):i, ]))
-    rowvar[, , i] <- solve(rowvar[, , i])
     
     if (w > 1) {
-      rowvar1[, , i] <- var(t(ph1mat[(i - (w - 1)):(i - (w - 1) + w1 - 1), ]))
-      rowvar1[, , i] <- solve(rowvar1[, , i])
+      rowvar[, , i] <- var(t(ph1mat[(i - (w - 1)):i, ]))
+      rowvar[, , i] <- solve(rowvar[, , i])
     
-      rowvar2[, , i] <- var(t(ph1mat[(i - (w - 1) + w1):i, ]))
-      rowvar2[, , i] <- solve(rowvar2[, , i])
+      if (w1 > 1) {
+        rowvar1[, , i] <- var(t(ph1mat[(i - (w - 1)):(i - (w - 1) + w1 - 1), ]))
+        rowvar1[, , i] <- solve(rowvar1[, , i])
+      } else {
+        rowvar1[, , i] <- var(ph1mat[(i - (w - 1)):(i - (w - 1) + w1 - 1), ])
+        rowvar1[, , i] <- 1 / rowvar1[, , i]
+      }
+      
+      if (w2 > 1) {
+        rowvar2[, , i] <- var(t(ph1mat[(i - (w - 1) + w1):i, ]))
+        rowvar2[, , i] <- solve(rowvar2[, , i])
+      } else {
+        rowvar2[, , i] <- var(ph1mat[(i - (w - 1) + w1):i, ])
+        rowvar2[, , i] <- 1 / rowvar2[, , i]
+      }
+      
+    } else {
+      rowvar[, , i] <- var(ph1mat[(i - (w - 1)):i, ])
+      rowvar[, , i] <- 1 / rowvar[, , i]
     }
     
     
