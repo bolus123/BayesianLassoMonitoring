@@ -375,7 +375,7 @@ Ph1MultipleTesting.Y0tr <- function(model, FAP0 = 0.2, side = "right-sided", nsi
         lim[i, 2] <- quantile(ph1mat[i, ], 1 - adj.alpha)
       } else if (side == "left-sided") {
         lim[i, 1] <- quantile(ph1mat[i, ], adj.alpha)
-        lim[i, 2] <- infert
+        lim[i, 2] <- Inf
       } else if (side == "two-sided") {
         lim[i, 1] <- quantile(ph1mat[i, ], adj.alpha / 2)
         lim[i, 2] <- quantile(ph1mat[i, ], 1 - adj.alpha / 2)
@@ -420,7 +420,7 @@ Ph1MultipleTesting.Y0tr <- function(model, FAP0 = 0.2, side = "right-sided", nsi
       lim[i, 2] <- quantile(ph1mat[i, ], 1 - adj.alpha, na.rm = TRUE)
     } else if (side == "left-sided") {
       lim[i, 1] <- quantile(ph1mat[i, ], adj.alpha, na.rm = TRUE)
-      lim[i, 2] <- infert
+      lim[i, 2] <- Inf
     } else if (side == "two-sided") {
       lim[i, 1] <- quantile(ph1mat[i, ], adj.alpha / 2, na.rm = TRUE)
       lim[i, 2] <- quantile(ph1mat[i, ], 1 - adj.alpha / 2, na.rm = TRUE)
@@ -461,7 +461,7 @@ Ph1MultipleTesting.Y01 <- function(model, FAP0 = 0.2, side = "right-sided",
         lim[i, 2] <- quantile(ph1mat[i, ], 1 - adj.alpha)
       } else if (side == "left-sided") {
         lim[i, 1] <- quantile(ph1mat[i, ], adj.alpha)
-        lim[i, 2] <- infert
+        lim[i, 2] <- Inf
       } else if (side == "two-sided") {
         lim[i, 1] <- quantile(ph1mat[i, ], adj.alpha / 2)
         lim[i, 2] <- quantile(ph1mat[i, ], 1 - adj.alpha / 2)
@@ -512,7 +512,7 @@ Ph1MultipleTesting.Y01 <- function(model, FAP0 = 0.2, side = "right-sided",
       lim[i, 2] <- quantile(ph1mat[i, ], 1 - adj.alpha, na.rm = TRUE)
     } else if (side == "left-sided") {
       lim[i, 1] <- quantile(ph1mat[i, ], adj.alpha, na.rm = TRUE)
-      lim[i, 2] <- infert
+      lim[i, 2] <- Inf
     } else if (side == "two-sided") {
       lim[i, 1] <- quantile(ph1mat[i, ], adj.alpha / 2, na.rm = TRUE)
       lim[i, 2] <- quantile(ph1mat[i, ], 1 - adj.alpha / 2, na.rm = TRUE)
@@ -816,7 +816,7 @@ Ph1MultipleTesting.Y01Ma <- function(model, w = 7, FAP0 = 0.2, side = "right-sid
         lim[i, 2] <- quantile(ph1mat[i, ], 1 - adj.alpha, na.rm = TRUE)
       } else if (side == "left-sided") {
         lim[i, 1] <- quantile(ph1mat[i, ], adj.alpha, na.rm = TRUE)
-        lim[i, 2] <- infert
+        lim[i, 2] <- Inf
       } else if (side == "two-sided") {
         lim[i, 1] <- quantile(ph1mat[i, ], adj.alpha / 2, na.rm = TRUE)
         lim[i, 2] <- quantile(ph1mat[i, ], 1 - adj.alpha / 2, na.rm = TRUE)
@@ -877,7 +877,7 @@ Ph1MultipleTesting.Y01Ma <- function(model, w = 7, FAP0 = 0.2, side = "right-sid
       lim[i, 2] <- quantile(dd[i, ], 1 - adj.alpha, na.rm = TRUE)
     } else if (side == "left-sided") {
       lim[i, 1] <- quantile(dd[i, ], adj.alpha, na.rm = TRUE)
-      lim[i, 2] <- infert
+      lim[i, 2] <- Inf
     } else if (side == "two-sided") {
       lim[i, 1] <- quantile(dd[i, ], adj.alpha / 2, na.rm = TRUE)
       lim[i, 2] <- quantile(dd[i, ], 1 - adj.alpha / 2, na.rm = TRUE)
@@ -922,7 +922,7 @@ Ph1MultipleTesting.Y01L1 <- function(model, w = 7, FAP0 = 0.2, side = "right-sid
         lim[i, 2] <- quantile(ph1mat[i, ], 1 - adj.alpha, na.rm = TRUE)
       } else if (side == "left-sided") {
         lim[i, 1] <- quantile(ph1mat[i, ], adj.alpha, na.rm = TRUE)
-        lim[i, 2] <- infert
+        lim[i, 2] <- Inf
       } else if (side == "two-sided") {
         lim[i, 1] <- quantile(ph1mat[i, ], adj.alpha / 2, na.rm = TRUE)
         lim[i, 2] <- quantile(ph1mat[i, ], 1 - adj.alpha / 2, na.rm = TRUE)
@@ -956,7 +956,7 @@ Ph1MultipleTesting.Y01L1 <- function(model, w = 7, FAP0 = 0.2, side = "right-sid
     if (!is.null(model$X)) {
       Mu0 <- Mu0 + model$X %*% (model$Beta[, tmpsel] * model$Zeta[, tmpsel])
     }
-    ph1mat[, i] <- simYph2(0, as.matrix(model$Y), as.matrix(model$Z[, tmpsel]), as.matrix(model$Phi[, tmpsel]),
+    ph1mat[, i] <- simYph2NoY(n - q, as.matrix(model$Y), as.matrix(model$Z[, tmpsel]), as.matrix(model$Phi[, tmpsel]),
                            Mu0, model$sigma2[tmpsel], updateYJ, model$theta[tmpsel], 
                            leftcensoring, rounding, eps, backtr)
   }
@@ -965,6 +965,8 @@ Ph1MultipleTesting.Y01L1 <- function(model, w = 7, FAP0 = 0.2, side = "right-sid
   
   mm <- apply(ph1mat, 1, median, na.rm = TRUE)
   dd <- ph1mat - mm
+  ss <- rowMeans(dd ^ 2)
+  dd <- dd / ss
   
   if (side == "left-sided") {
     dd[dd > 0] <- 0
@@ -996,7 +998,7 @@ Ph1MultipleTesting.Y01L1 <- function(model, w = 7, FAP0 = 0.2, side = "right-sid
       lim[i, 2] <- quantile(dd[i, ], 1 - adj.alpha, na.rm = TRUE)
     } else if (side == "left-sided") {
       lim[i, 1] <- quantile(dd[i, ], adj.alpha, na.rm = TRUE)
-      lim[i, 2] <- infert
+      lim[i, 2] <- Inf
     } else if (side == "two-sided") {
       lim[i, 1] <- quantile(dd[i, ], adj.alpha / 2, na.rm = TRUE)
       lim[i, 2] <- quantile(dd[i, ], 1 - adj.alpha / 2, na.rm = TRUE)
@@ -1004,6 +1006,7 @@ Ph1MultipleTesting.Y01L1 <- function(model, w = 7, FAP0 = 0.2, side = "right-sid
   }
   
   cs <- model$Y[-c(1:q)] - mm
+  cs <- cs / ss
   
   if (side == "left-sided") {
     cs[cs > 0] <- 0
@@ -1022,10 +1025,170 @@ Ph1MultipleTesting.Y01L1 <- function(model, w = 7, FAP0 = 0.2, side = "right-sid
   
   sig <- 1 - ((lim[, 1] <= cs) & (cs <= lim[, 2]))
   
-  list("grandsig" = sum(sig) > 0, "cs" = cs, "sig" = c(rep(0, w - 1), sig), "lim" = lim, "adj.alpha" = adj.alpha, 
+  list("grandsig" = sum(sig) > 0, "cs" = cs, "sig" = c(rep(0, floor(w / 2)), sig, rep(0, ceiling(w / 2) - 1)), "lim" = lim, "adj.alpha" = adj.alpha, 
        "Yph1" = ph1mat)
   
 }
+
+
+
+#' Bayesian LASSO Phase I Monitoring
+#' 
+#' gets a posterior sample using Gibbs sampling for Random Flexible Level Shift Model
+#' @param model is model.
+#' @param nsim is .
+#' @param FAP0 is 
+#' @param log is model.
+#' @param const is .
+#' @param sta is 
+#' 
+#' 
+#' @export
+Ph1MultipleTesting.Y01MH <- function(model, w = 7, FAP0 = 0.2, side = "right-sided", 
+                                   updateYJ = 1, leftcensoring = 1, rounding = 1, eps = 1e-32,
+                                   backtr = 1, nsim = 10000, interval = c(0.000001, 0.499999), verbose = 0) {
+  
+  root.finding <- function(adj.alpha, ph1mat, FAP0, n, nsim, side = "right-sided", verbose = 0) {
+    
+    lim <- matrix(NA, nrow = n, ncol = 2)
+    sig <- matrix(NA, nrow = n, ncol = nsim)
+    
+    for (i in 1:n) {
+      if (side == "right-sided") {
+        lim[i, 1] <- -Inf
+        lim[i, 2] <- quantile(ph1mat[i, ], 1 - adj.alpha, na.rm = TRUE)
+      } else if (side == "left-sided") {
+        lim[i, 1] <- quantile(ph1mat[i, ], adj.alpha, na.rm = TRUE)
+        lim[i, 2] <- Inf
+      } else if (side == "two-sided") {
+        lim[i, 1] <- quantile(ph1mat[i, ], adj.alpha / 2, na.rm = TRUE)
+        lim[i, 2] <- quantile(ph1mat[i, ], 1 - adj.alpha / 2, na.rm = TRUE)
+      }
+    }
+    
+    for (i in 1:nsim) {
+      sig[, i] <- (lim[, 1] <= ph1mat[, i]) & (ph1mat[, i] <= lim[, 2])
+    }
+    
+    tmp <- mean(colSums(sig) == n, na.rm = TRUE)
+    dif <- tmp - (1 - FAP0)
+    
+    if (verbose == 1) {
+      cat("adj.alpha:", adj.alpha, "\n")
+      cat("FAP0:", 1 - tmp, "\n")
+    }
+  
+    return(dif)
+  }
+  
+  q <- dim(model$Phi)[1]
+  n <- length(model$Y)
+  nnsim <- dim(model$Phi)[2]
+  
+  ph1mat <- matrix(NA, nrow = n - q, ncol = nsim)
+  
+  for (i in 1:nsim) {
+    tmpsel <- sample(1:nnsim, 1)
+    Mu0 <- matrix(rep(model$mu0[tmpsel], n))
+    if (!is.null(model$X)) {
+      Mu0 <- Mu0 + model$X %*% (model$Beta[, tmpsel] * model$Zeta[, tmpsel])
+    }
+    ph1mat[, i] <- simYph2NoY(n - q, as.matrix(model$Y), as.matrix(model$Z[, tmpsel]), as.matrix(model$Phi[, tmpsel]),
+                           Mu0, model$sigma2[tmpsel], updateYJ, model$theta[tmpsel], 
+                           leftcensoring, rounding, eps, backtr)
+    #ph1mat[, i] <- rank(ph1mat[, i])
+  }
+  
+  ##w <- 1 + hw * 2
+  
+  #mm <- rowMeans(ph1mat, na.rm = TRUE)
+  mm <- apply(ph1mat, 1, median, na.rm = TRUE)
+  dd <- ph1mat - mm
+  
+  #if (side == "left-sided") {
+  #  dd[dd > 0] <- 0
+  #} else if (side == "right-sided") {
+  #  dd[dd < 0] <- 0
+  #}
+  
+  #dd <- abs(dd)
+  
+  w1 <- floor(w / 2)
+  w2 <- w - w1
+  
+  rowvar <- array(NA, dim = c(w, w, n - q))
+  rowvar1 <- array(NA, dim = c(w1, w1, n - q))
+  rowvar2 <- array(NA, dim = c(w2, w2, n - q))
+  ee <- matrix(NA, nrow = n - q, ncol = nsim)
+  ee1 <- matrix(NA, nrow = n - q, ncol = nsim)
+  ee2 <- matrix(NA, nrow = n - q, ncol = nsim)
+  
+  for (i in w:(n - q)) {
+    rowvar[, , i] <- var(t(ph1mat[(i - (w - 1)):i, ]))
+    rowvar[, , i] <- solve(rowvar[, , i])
+    
+    rowvar1[, , i] <- var(t(ph1mat[(i - (w - 1)):(i - (w - 1) + w1 - 1), ]))
+    rowvar1[, , i] <- solve(rowvar1[, , i])
+    
+    rowvar2[, , i] <- var(t(ph1mat[(i - (w - 1) + w1):i, ]))
+    rowvar2[, , i] <- solve(rowvar2[, , i])
+    for (j in 1:nsim) {
+      ee[i, j] <- t(dd[(i - (w - 1)):i, j]) %*% rowvar[, , i] %*% dd[(i - (w - 1)):i, j] -
+        t(dd[(i - (w - 1)):(i - (w - 1) + w1 - 1), j]) %*% rowvar1[, , i] %*% dd[(i - (w - 1)):(i - (w - 1) + w1 - 1), j] -
+        t(dd[(i - (w - 1) + w1):i, j]) %*% rowvar2[, , i] %*% dd[(i - (w - 1) + w1):i, j]
+    }
+  }
+  
+  if (w > 1) {
+    ee <- ee[-c(1:(w - 1)), ]
+  }
+  
+  
+  ##debug(root.finding)
+  adj.alpha <- uniroot(root.finding, interval, ph1mat = ee, FAP0 = FAP0, n = n - q - (w - 1), nsim = nsim, side = side, 
+          tol = 1e-6, verbose = verbose)$root
+  
+  lim <- matrix(NA, nrow = n - q - (w - 1), ncol = 2)
+  sig <- matrix(NA, nrow = n - q - (w - 1), ncol = 1)
+  
+  lim[, 1] <- -Inf
+  lim[, 2] <- Inf
+  
+  for (i in 1:(n - q - (w - 1))) {
+    if (side == "right-sided") {
+      lim[i, 1] <- -Inf
+      lim[i, 2] <- quantile(ee[i, ], 1 - adj.alpha, na.rm = TRUE)
+    } else if (side == "left-sided") {
+      lim[i, 1] <- quantile(ee[i, ], adj.alpha, na.rm = TRUE)
+      lim[i, 2] <- Inf
+    } else if (side == "two-sided") {
+      lim[i, 1] <- quantile(ee[i, ], adj.alpha / 2, na.rm = TRUE)
+      lim[i, 2] <- quantile(ee[i, ], 1 - adj.alpha / 2, na.rm = TRUE)
+    }
+  }
+  
+  #rr <- rank(model$Y[-c(1:q)])
+  rr <- model$Y[-c(1:q)]
+  cs <- rr - mm
+  cc <- rep(NA, n - q)
+  for (i in w:(n - q)) {
+    cc[i] <- t(cs[(i - (w - 1)):i]) %*% rowvar[, , i] %*% cs[(i - (w - 1)):i] -
+       t(cs[(i - (w - 1)):(i - (w - 1) + w1 - 1)]) %*% rowvar1[, , i] %*% cs[(i - (w - 1)):(i - (w - 1) + w1 - 1)] -
+       t(cs[(i - (w - 1) + w1):i]) %*% rowvar2[, , i] %*% cs[(i - (w - 1) + w1):i]
+  }
+
+  if (w > 1) {
+    cc <- cc[-c(1:(w - 1))]
+  }
+  
+  
+  sig <- 1 - ((lim[, 1] <= cc) & (cc <= lim[, 2]))
+  
+  list("grandsig" = sum(sig) > 0, "cs" = cc, "sig" = c(rep(0, w1), sig, rep(0, ceiling(w / 2) - 1)), "lim" = lim, "adj.alpha" = adj.alpha, 
+       "Yph1" = ph1mat)
+  
+}
+
 
 #' Bayesian LASSO Phase I Monitoring
 #' 
@@ -1054,7 +1217,7 @@ Ph1MultipleTesting.Y01RollL1 <- function(model, hw = 7, FAP0 = 0.2, side = "righ
         lim[i, 2] <- quantile(ph1mat[i, ], 1 - adj.alpha, na.rm = TRUE)
       } else if (side == "left-sided") {
         lim[i, 1] <- quantile(ph1mat[i, ], adj.alpha, na.rm = TRUE)
-        lim[i, 2] <- infert
+        lim[i, 2] <- Inf
       } else if (side == "two-sided") {
         lim[i, 1] <- quantile(ph1mat[i, ], adj.alpha / 2, na.rm = TRUE)
         lim[i, 2] <- quantile(ph1mat[i, ], 1 - adj.alpha / 2, na.rm = TRUE)
@@ -1139,7 +1302,7 @@ Ph1MultipleTesting.Y01RollL1 <- function(model, hw = 7, FAP0 = 0.2, side = "righ
       lim[i, 2] <- quantile(dd[i, ], 1 - adj.alpha, na.rm = TRUE)
     } else if (side == "left-sided") {
       lim[i, 1] <- quantile(dd[i, ], adj.alpha, na.rm = TRUE)
-      lim[i, 2] <- infert
+      lim[i, 2] <- Inf
     } else if (side == "two-sided") {
       lim[i, 1] <- quantile(dd[i, ], adj.alpha / 2, na.rm = TRUE)
       lim[i, 2] <- quantile(dd[i, ], 1 - adj.alpha / 2, na.rm = TRUE)

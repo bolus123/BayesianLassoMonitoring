@@ -4627,3 +4627,120 @@ arma::colvec simYph2(int h, arma::colvec Y, arma::colvec Z, arma::colvec Phi,arm
 }
 
 
+//' Absolute-value-constrained normal distribution
+//' 
+//' gets a sample from a normal distribution whose absolute observations are constrained.
+//'
+//' @param n is sample size.
+//' @export
+//' @examples
+//' rtwosegnorm(10, 1, 2, 0, 1)
+// [[Rcpp::export]]
+arma::colvec simYyjph2NoY(int h, arma::colvec Yyjph1, arma::colvec Phi, arma::colvec Mu, double sigma2) {
+  
+  int q = Phi.n_rows;
+  //Rcpp::Rcout << q << std::endl;
+  int T = Yyjph1.n_elem;
+  //Rcpp::Rcout << T << std::endl;
+ arma::mat V(q + h, 1); 
+ arma::mat Vas(q, 1);
+ arma::mat VasPhi;
+  
+ arma::mat fit(h, 1);
+ arma::mat simYyjph2(h, 1);
+ arma::colvec tmp;
+  
+  //Rcpp::Rcout << 1.1 << std::endl;
+  
+  //for (int i = 0; i < (T + h); i++) {
+  for (int i = 0; i < (q + h); i++) {
+    
+    
+    //Rcpp::Rcout << i << std::endl;
+    
+    if (i >= q) {
+      for (int j = 0; j < q; j++) {
+        Vas(j, 0) = V(i - 1 - j, 0);
+      }
+      VasPhi = Vas.t() * Phi;
+      fit(i - q, 0) = Mu(i) + VasPhi(0);
+      simYyjph2(i - q, 0) = R::rnorm(fit(i - q, 0), sqrt(sigma2));
+    }
+    
+    //Rcpp::Rcout << 1.2 << std::endl;
+    
+    if (i < q) {
+      V(i, 0) = Yyjph1(i) - Mu(i);
+    } else if (i >= q) {
+      V(i, 0) = simYyjph2(i - q, 0) - Mu(i);
+    }
+    
+    //Rcpp::Rcout << 1.3 << std::endl;
+    
+    //Rcpp::Rcout << 3 << std::endl;
+    //Rcpp::Rcout << ucYyj(i)  << std::endl;
+    
+    
+    //Rcpp::Rcout << 4 << std::endl;
+  }
+  
+  //Rcpp::Rcout << ucYyj << std::endl;
+  
+  //ucY = invyeojohnsontr(ucYyj, theta, eps);
+  
+  //Rcpp::Rcout << 5 << std::endl;
+  
+  return(simYyjph2);
+
+}
+
+
+//' Absolute-value-constrained normal distribution
+//' 
+//' gets a sample from a normal distribution whose absolute observations are constrained.
+//'
+//' @param n is sample size.
+//' @export
+//' @examples
+//' rtwosegnorm(10, 1, 2, 0, 1)
+// [[Rcpp::export]]
+arma::colvec simYph2NoY(int h, arma::colvec Y, arma::colvec Z, arma::colvec Phi,arma::colvec Mu, double sigma2, 
+                     int updateYJ, double theta, int leftcensoring, int rounding, double eps, int backtr) {
+  
+  arma::colvec Yyjph1 = Y;
+  if ((leftcensoring == 1) || (rounding == 1)) {
+    Yyjph1 = Yyjph1 + Z;
+  }
+  if (updateYJ == 1) {
+    Yyjph1 = yeojohnsontr(Yyjph1, theta, eps);
+  }
+  
+  //Rcpp::Rcout << 1 << std::endl;
+  
+  arma::colvec Yyjph2 = simYyjph2NoY(h, Yyjph1, Phi, Mu, sigma2); 
+  //Rcpp::Rcout << 2 << std::endl;
+  
+  arma::colvec Yph2 = Yyjph2;
+  
+  arma::uvec ind0;
+  
+  if (backtr == 1) { 
+  
+    if (updateYJ == 1) {
+      Yph2 = invyeojohnsontr(Yph2, theta, eps); 
+    //Rcpp::Rcout << 3 << std::endl;
+    }
+   
+    if ((leftcensoring == 1)) {
+      ind0 =arma::find(Yph2 <= 0.0); 
+      Yph2(ind0).fill(0.0);
+    }
+    
+    if ((rounding == 1)) {
+      Yph2 = arma::round(Yph2);
+    } 
+  }
+  
+  return(Yph2);
+  
+}
