@@ -1127,15 +1127,22 @@ Ph1MultipleTesting.Y01MH <- function(model, w = 7, FAP0 = 0.2, side = "right-sid
     rowvar[, , i] <- var(t(ph1mat[(i - (w - 1)):i, ]))
     rowvar[, , i] <- solve(rowvar[, , i])
     
-    rowvar1[, , i] <- var(t(ph1mat[(i - (w - 1)):(i - (w - 1) + w1 - 1), ]))
-    rowvar1[, , i] <- solve(rowvar1[, , i])
+    if (w > 1) {
+      rowvar1[, , i] <- var(t(ph1mat[(i - (w - 1)):(i - (w - 1) + w1 - 1), ]))
+      rowvar1[, , i] <- solve(rowvar1[, , i])
     
-    rowvar2[, , i] <- var(t(ph1mat[(i - (w - 1) + w1):i, ]))
-    rowvar2[, , i] <- solve(rowvar2[, , i])
+      rowvar2[, , i] <- var(t(ph1mat[(i - (w - 1) + w1):i, ]))
+      rowvar2[, , i] <- solve(rowvar2[, , i])
+    }
+    
+    
     for (j in 1:nsim) {
-      ee[i, j] <- t(dd[(i - (w - 1)):i, j]) %*% rowvar[, , i] %*% dd[(i - (w - 1)):i, j] -
+      ee[i, j] <- t(dd[(i - (w - 1)):i, j]) %*% rowvar[, , i] %*% dd[(i - (w - 1)):i, j]
+      if (w > 1) {
+        ee[i, j] <- ee[i, j] -
         t(dd[(i - (w - 1)):(i - (w - 1) + w1 - 1), j]) %*% rowvar1[, , i] %*% dd[(i - (w - 1)):(i - (w - 1) + w1 - 1), j] -
         t(dd[(i - (w - 1) + w1):i, j]) %*% rowvar2[, , i] %*% dd[(i - (w - 1) + w1):i, j]
+      }
     }
   }
   
@@ -1172,9 +1179,14 @@ Ph1MultipleTesting.Y01MH <- function(model, w = 7, FAP0 = 0.2, side = "right-sid
   cs <- rr - mm
   cc <- rep(NA, n - q)
   for (i in w:(n - q)) {
-    cc[i] <- t(cs[(i - (w - 1)):i]) %*% rowvar[, , i] %*% cs[(i - (w - 1)):i] -
+    cc[i] <- t(cs[(i - (w - 1)):i]) %*% rowvar[, , i] %*% cs[(i - (w - 1)):i]
+    
+    if (w > 1) {
+      cc[i] <- cc[i] -
        t(cs[(i - (w - 1)):(i - (w - 1) + w1 - 1)]) %*% rowvar1[, , i] %*% cs[(i - (w - 1)):(i - (w - 1) + w1 - 1)] -
        t(cs[(i - (w - 1) + w1):i]) %*% rowvar2[, , i] %*% cs[(i - (w - 1) + w1):i]
+    }
+    
   }
 
   if (w > 1) {
