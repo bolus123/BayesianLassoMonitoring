@@ -1113,7 +1113,7 @@ Ph1MultipleTesting.Y01L1CUMSUM <- function(model, w = 7, FAP0 = 0.2, side = "rig
   
   dd <- abs(dd)
   
-  dd <- apply(dd, 1, cumsum)
+  dd <- apply(dd, 2, cumsum)
   
   if (w > 1) {
     dd <- dd[-c(1:(w - 1)), ]
