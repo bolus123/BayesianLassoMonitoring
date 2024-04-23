@@ -1031,6 +1031,142 @@ Ph1MultipleTesting.Y01L1 <- function(model, w = 7, FAP0 = 0.2, side = "right-sid
   
 }
 
+#' Bayesian LASSO Phase I Monitoring
+#' 
+#' gets a posterior sample using Gibbs sampling for Random Flexible Level Shift Model
+#' @param model is model.
+#' @param nsim is .
+#' @param FAP0 is 
+#' @param log is model.
+#' @param const is .
+#' @param sta is 
+#' 
+#' 
+#' @export
+Ph1MultipleTesting.Y01L1CUMSUM <- function(model, w = 7, FAP0 = 0.2, side = "right-sided", 
+                                   updateYJ = 1, leftcensoring = 1, rounding = 1, eps = 1e-32,
+                                   backtr = 1, nsim = 10000, interval = c(0.000001, 0.499999), verbose = 0) {
+  
+  root.finding <- function(adj.alpha, ph1mat, FAP0, n, nsim, side = "right-sided", verbose = 0) {
+    
+    lim <- matrix(NA, nrow = n, ncol = 2)
+    sig <- matrix(NA, nrow = n, ncol = nsim)
+    
+    for (i in 1:n) {
+      if (side == "right-sided") {
+        lim[i, 1] <- -Inf
+        lim[i, 2] <- quantile(ph1mat[i, ], 1 - adj.alpha, na.rm = TRUE)
+      } else if (side == "left-sided") {
+        lim[i, 1] <- quantile(ph1mat[i, ], adj.alpha, na.rm = TRUE)
+        lim[i, 2] <- Inf
+      } else if (side == "two-sided") {
+        lim[i, 1] <- quantile(ph1mat[i, ], adj.alpha / 2, na.rm = TRUE)
+        lim[i, 2] <- quantile(ph1mat[i, ], 1 - adj.alpha / 2, na.rm = TRUE)
+      }
+    }
+    
+    for (i in 1:nsim) {
+      sig[, i] <- (lim[, 1] <= ph1mat[, i]) & (ph1mat[, i] <= lim[, 2])
+    }
+    
+    tmp <- mean(colSums(sig) == n, na.rm = TRUE)
+    dif <- tmp - (1 - FAP0)
+    
+    if (verbose == 1) {
+      cat("adj.alpha:", adj.alpha, "\n")
+      cat("FAP0:", 1 - tmp, "\n")
+    }
+  
+    return(dif)
+  }
+  
+  q <- dim(model$Phi)[1]
+  n <- length(model$Y)
+  nnsim <- dim(model$Phi)[2]
+  
+  ph1mat <- matrix(NA, nrow = n - q, ncol = nsim)
+  
+  for (i in 1:nsim) {
+    tmpsel <- sample(1:nnsim, 1)
+    Mu0 <- matrix(rep(model$mu0[tmpsel], n))
+    if (!is.null(model$X)) {
+      Mu0 <- Mu0 + model$X %*% (model$Beta[, tmpsel] * model$Zeta[, tmpsel])
+    }
+    ph1mat[, i] <- simYph2NoY(n - q, as.matrix(model$Y), as.matrix(model$Z[, tmpsel]), as.matrix(model$Phi[, tmpsel]),
+                           Mu0, model$sigma2[tmpsel], updateYJ, model$theta[tmpsel], 
+                           leftcensoring, rounding, eps, backtr)
+  }
+  
+  ##w <- 1 + hw * 2
+  
+  mm <- apply(ph1mat, 1, median, na.rm = TRUE)
+  dd <- ph1mat - mm
+  #ss <- sqrt(rowMeans(dd ^ 2))
+  ss <- rowMeans(abs(dd))
+  dd <- dd / ss
+  
+  if (side == "left-sided") {
+    dd[dd > 0] <- 0
+  } else if (side == "right-sided") {
+    dd[dd < 0] <- 0
+  }
+  
+  dd <- abs(dd)
+  
+  dd <- apply(dd, 1, cumsum)
+  
+  if (w > 1) {
+    dd <- dd[-c(1:(w - 1)), ]
+  }
+  
+  ##debug(root.finding)
+  adj.alpha <- uniroot(root.finding, interval, ph1mat = dd, FAP0 = FAP0, n = n - q - (w - 1), nsim = nsim, side = side, 
+          tol = 1e-6, verbose = verbose)$root
+  
+  lim <- matrix(NA, nrow = n - q - (w - 1), ncol = 2)
+  sig <- matrix(NA, nrow = n - q - (w - 1), ncol = 1)
+  
+  lim[, 1] <- -Inf
+  lim[, 2] <- Inf
+  
+  for (i in 1:(n - q - (w - 1))) {
+    if (side == "right-sided") {
+      lim[i, 1] <- -Inf
+      lim[i, 2] <- quantile(dd[i, ], 1 - adj.alpha, na.rm = TRUE)
+    } else if (side == "left-sided") {
+      lim[i, 1] <- quantile(dd[i, ], adj.alpha, na.rm = TRUE)
+      lim[i, 2] <- Inf
+    } else if (side == "two-sided") {
+      lim[i, 1] <- quantile(dd[i, ], adj.alpha / 2, na.rm = TRUE)
+      lim[i, 2] <- quantile(dd[i, ], 1 - adj.alpha / 2, na.rm = TRUE)
+    }
+  }
+  
+  cs <- model$Y[-c(1:q)] - mm
+  cs <- cs / ss
+  
+  if (side == "left-sided") {
+    cs[cs > 0] <- 0
+  } else if (side == "right-sided") {
+    cs[cs < 0] <- 0
+  }
+  
+  cs <- abs(cs)
+  
+  cs <- cumsum(cs)
+  
+  if (w > 1) {
+    cs <- cs[-c(1:(w - 1))]
+  }
+  
+  
+  sig <- 1 - ((lim[, 1] <= cs) & (cs <= lim[, 2]))
+  
+  list("grandsig" = sum(sig) > 0, "cs" = cs, "sig" = c(rep(0, floor(w / 2)), sig, rep(0, ceiling(w / 2) - 1)), "lim" = lim, "adj.alpha" = adj.alpha, 
+       "Yph1" = ph1mat)
+  
+}
+
 
 
 #' Bayesian LASSO Phase I Monitoring
