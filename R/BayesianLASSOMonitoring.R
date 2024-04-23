@@ -965,7 +965,7 @@ Ph1MultipleTesting.Y01L1 <- function(model, w = 7, FAP0 = 0.2, side = "right-sid
   
   mm <- apply(ph1mat, 1, median, na.rm = TRUE)
   dd <- ph1mat - mm
-  ss <- rowMeans(dd ^ 2)
+  ss <- sqrt(rowMeans(dd ^ 2))
   dd <- dd / ss
   
   if (side == "left-sided") {
