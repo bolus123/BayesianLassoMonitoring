@@ -1539,7 +1539,8 @@ Ph1MultipleTesting.GammaBC <- function(model, w = 7, FAP0 = 0.2, side = "right-s
   
     TauGamma <- (model$Tau * model$Gamma)
     cs <- rowMeans(TauGamma) / apply(TauGamma, 1, sd)
-    adj.alpha <- 1 - (1 - FAP0) ^ (1 / m) #sidak
+    adj.alpha <- FAP0 / m #BC
+    #adj.alpha <- 1 - (1 - FAP0) ^ (1 / m) #sidak
     
     if (side == "right-sided") {
       pvalue <- 1 - pnorm(cs)
