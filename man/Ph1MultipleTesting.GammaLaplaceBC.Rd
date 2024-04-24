@@ -7,7 +7,8 @@
 Ph1MultipleTesting.GammaLaplaceBC(
   model,
   w = 7,
-  FAP0 = 0.2,
+  FAP0 = 0.05,
+  method = "bonferroni",
   side = "right-sided"
 )
 }
