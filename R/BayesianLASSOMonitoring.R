@@ -1520,7 +1520,7 @@ Ph1MultipleTesting.Y01RollL1 <- function(model, hw = 7, FAP0 = 0.2, side = "righ
 #' 
 #' 
 #' @export
-Ph1MultipleTesting.GammaBC <- function(model, w = 7, FAP0 = 0.2, side = "right-sided") {
+Ph1MultipleTesting.GammaNormBC <- function(model, w = 7, FAP0 = 0.2, side = "right-sided") {
   
   n <- length(model$Y)
   q <- dim(model$Phi)[2]
@@ -1581,6 +1581,84 @@ Ph1MultipleTesting.GammaBC <- function(model, w = 7, FAP0 = 0.2, side = "right-s
        "pvalue" = pvalue, "adj.alpha" = adj.alpha)
   
 }
+
+
+#' Bayesian LASSO Phase I Monitoring
+#' 
+#' gets a posterior sample using Gibbs sampling for Random Flexible Level Shift Model
+#' @param model is model.
+#' @param nsim is .
+#' @param FAP0 is 
+#' @param log is model.
+#' @param const is .
+#' @param sta is 
+#' 
+#' 
+#' @export
+Ph1MultipleTesting.GammaLaplaceBC <- function(model, w = 7, FAP0 = 0.2, side = "right-sided") {
+  
+  n <- length(model$Y)
+  q <- dim(model$Phi)[2]
+  
+  grand.sig <- 0
+  
+  sig <- 0
+  pvalue <- NULL
+  lim <- NULL
+  
+  if (!is.null(model$H)) {
+    m <- dim(model$H)[2]
+    sig <- rep(0, m)
+    pvalue <- rep(NA, m)
+    lim <- cbind(rep(-Inf, m), rep(Inf, m))
+  
+    TauGamma <- (model$Tau * model$Gamma)
+    mm <- apply(TauGamma, 1, median)
+    cs <- mm / rowMeans(abs(TauGamma - mm))
+    adj.alpha <- FAP0 / m #BC
+    #adj.alpha <- 1 - (1 - FAP0) ^ (1 / m) #sidak
+    
+    if (side == "right-sided") {
+      pvalue <- 1 - VGAM::plaplace(cs)
+    } else if (side == "left-sided") {
+      pvalue <- VGAM::plaplace(cs)
+    } else {
+      pvalue1 <- 1 - VGAM::plaplace(cs)
+      pvalue2 <- VGAM::plaplace(cs)
+      pvalue <- cbind(pvalue1, pvalue2)
+      pvalue <- apply(pvalue, 1, min)
+      pvalue <- pvalue * 2
+    }
+    
+    
+    sig <- pvalue <= adj.alpha
+    grand.sig <- sum(sig) > 0
+  }
+  
+  tmpsig <- model$H %*% sig
+  tmpsig[tmpsig > 1] <- 1
+  tmpsig <- diff(model$H %*% sig)
+  tmpsig[tmpsig < 0] <- 0
+  tmpsig <- c(0, tmpsig)
+  
+  tmpsel <- which(tmpsig == 1)
+  nsel <- length(tmpsel)
+  
+  if (nsel > 0) {
+    for (i in 1:nsel) {
+      tmpsig[tmpsel[i]:(tmpsel[i] + w - 1)] <- 1
+    }
+  }
+  
+  
+  list("grandsig" = grand.sig, "cs" = cs, 
+       "sig" = tmpsig, 
+       "parsig" = sig,
+       "pvalue" = pvalue, "adj.alpha" = adj.alpha)
+  
+}
+
+
 
 
 #' Bayesian LASSO Phase I Monitoring
