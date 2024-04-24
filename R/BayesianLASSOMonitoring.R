@@ -1511,6 +1511,61 @@ Ph1MultipleTesting.Y01RollL1 <- function(model, hw = 7, FAP0 = 0.2, side = "righ
 #' Bayesian LASSO Phase I Monitoring
 #' 
 #' gets a posterior sample using Gibbs sampling for Random Flexible Level Shift Model
+#' @param model is model.
+#' @param nsim is .
+#' @param FAP0 is 
+#' @param log is model.
+#' @param const is .
+#' @param sta is 
+#' 
+#' 
+#' @export
+Ph1MultipleTesting.GammaBC <- function(model, w = 7, FAP0 = 0.2, side = "right-sided") {
+  
+  n <- length(model$Y)
+  q <- dim(model$Phi)[2]
+  
+  grand.sig <- 0
+  
+  sig <- 0
+  pvalue <- NULL
+  lim <- NULL
+  
+  if (!is.null(model$H)) {
+    m <- dim(model$H)[2]
+    sig <- rep(0, m)
+    pvalue <- rep(NA, m)
+    lim <- cbind(rep(-Inf, m), rep(Inf, m))
+  
+    TauGamma <- (model$Tau * model$Gamma)
+    cs <- rowMeans(TauGamma) / apply(TauGamma, 1, sd)
+    adj.alpha <- 1 - (1 - FAP0) ^ (1 / m) #sidak
+    
+    if (side == "right-sided") {
+      pvalue <- 1 - pnorm(cs)
+    } else if (side == "left-sided") {
+      pvalue <- pnorm(cs)
+    } else {
+      pvalue1 <- 1 - pnorm(cs)
+      pvalue2 <- pnorm(cs)
+      pvalue <- cbind(pvalue1, pvalue2)
+      pvalue <- apply(pvalue, 1, min)
+      pvalue <- pvalue * 2
+    }
+    
+    
+    sig <- pvalue <= adj.alpha
+    grand.sig <- sum(sig) > 0
+  }
+  
+  list("grandsig" = grand.sig, "cs" = cs, "sig" = sig, "pvalue" = pvalue, "adj.alpha" = adj.alpha)
+  
+}
+
+
+#' Bayesian LASSO Phase I Monitoring
+#' 
+#' gets a posterior sample using Gibbs sampling for Random Flexible Level Shift Model
 #' @param Y is a vector.
 #' @param H is the design matrix for shifts.
 #' @param X is the input matrix
