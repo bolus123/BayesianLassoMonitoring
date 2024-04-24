@@ -1520,7 +1520,7 @@ Ph1MultipleTesting.Y01RollL1 <- function(model, hw = 7, FAP0 = 0.2, side = "righ
 #' 
 #' 
 #' @export
-Ph1MultipleTesting.GammaNormBC <- function(model, w = 7, FAP0 = 0.2, side = "right-sided") {
+Ph1MultipleTesting.GammaNormBC <- function(model, w = 7, FAP0 = 0.05, method = "bonferroni", side = "right-sided") {
   
   n <- length(model$Y)
   q <- dim(model$Phi)[2]
