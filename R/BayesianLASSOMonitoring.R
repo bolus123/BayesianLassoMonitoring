@@ -1558,7 +1558,26 @@ Ph1MultipleTesting.GammaBC <- function(model, w = 7, FAP0 = 0.2, side = "right-s
     grand.sig <- sum(sig) > 0
   }
   
-  list("grandsig" = grand.sig, "cs" = cs, "sig" = sig, "pvalue" = pvalue, "adj.alpha" = adj.alpha)
+  tmpsig <- H %*% sig
+  tmpsig[tmpsig > 1] <- 1
+  tmpsig <- diff(H %*% sig)
+  tmpsig[tmpsig < 0] <- 0
+  tmpsig <- c(0, tmpsig)
+  
+  tmpsel <- which(tmpsig == 1)
+  nsel <- length(tmpsel)
+  
+  if (nsel > 1) {
+    for (i in 1:nsel) {
+      tmpsig[tmpsel[i]:(tmpsel[i] + w - 1)] <- 1
+    }
+  }
+  
+  
+  list("grandsig" = grand.sig, "cs" = cs, 
+       "sig" = tmpsig, 
+       "parsig" = sig,
+       "pvalue" = pvalue, "adj.alpha" = adj.alpha)
   
 }
 
