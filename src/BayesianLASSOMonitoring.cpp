@@ -2719,6 +2719,8 @@ arma::mat updateZtMD(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu,
   Rcpp::Rcout << "oldZt:" << oldZt << std::endl;
   
   if (missingdatat > 0) {
+    Rcpp::Rcout << "run:" << 1 << std::endl;
+    
     for (i = 0; i < (1 + burnin); i++) {
       u = R::runif(0.0, 1.0);
       tmp = rtrnorm(1, oldZt, 0.1, lb, ub);
