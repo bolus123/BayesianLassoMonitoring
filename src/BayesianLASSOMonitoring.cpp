@@ -2706,6 +2706,9 @@ arma::mat updateZtMD(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu,
   double pd;
   
   int missingdatat = missingdata(t);
+
+  Rcpp::Rcout << "t:" << t << std::endl;
+  Rcpp::Rcout << "missingdatat:" << missingdatat << std::endl;
   
   double lb = missingdatalb;
   double ub = missingdataub;
