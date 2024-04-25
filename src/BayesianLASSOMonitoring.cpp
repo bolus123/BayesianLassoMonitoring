@@ -3955,11 +3955,8 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
  Rcpp::List tmpList;
  
  arma::mat Zout;
- if ((leftcensoring == 1) || (rounding == 1)) {
+ if ((leftcensoring == 1) || (rounding == 1) || (arma::accu(missingdata) > 0)) {
    Zout.set_size(T, nsim);
-   
-   Z = updateZSim(Y, Z, Phi, Mu, sigma2, 
-                  theta_, tol, leftcensoring, rounding);
  }
   
   //////////////////////////
@@ -3979,7 +3976,7 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
     }
     
     //if (updateZ == 1) {
-    if ((leftcensoring == 1) || (rounding == 1)) {
+    if ((leftcensoring == 1) || (rounding == 1) || (arma::accu(missingdata) > 0)) {
       Z = updateZZ(Y, Z, Phi, Mu, sigma2, 
                   theta_, leftcensoring, rounding, 0, 1, tol);
       
