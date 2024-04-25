@@ -2755,7 +2755,7 @@ arma::mat updateZtMD(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu,
     Ztout.zeros();
   }
   
-  Rcpp::Rcout << "Ztout:" << Ztout << std::endl;
+  //Rcpp::Rcout << "Ztout:" << Ztout << std::endl;
   
   return(Ztout);
   
@@ -2819,8 +2819,10 @@ arma::mat updateZZMD(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu,
     }
     //Rcpp::Rcout << "tmpZ:" << tmpZ << std::endl;
     Zout.col(i) = tmpZ;
-    //Rcpp::Rcout << "Zout:" << Zout << std::endl;
+    
   }
+  
+  Rcpp::Rcout << "Zout:" << Zout << std::endl;
   
   return(Zout);
   
