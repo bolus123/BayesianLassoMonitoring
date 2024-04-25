@@ -2734,7 +2734,7 @@ arma::mat updateZtMD(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu,
       newllhYJ = llhYJf(newYZ, Phi, Mu, sigma2, theta, tol);
       
       tmp = arma::accu(newllhYJ - oldllhYJ);
-      tmp = tmp + log(dtrnorm(newZt, 0.0, sqrt(0.1), lb, ub)) - log(dtrnorm(oldZt, 0.0, sqrt(0.1), lb, ub)) -
+      tmp = tmp + log(dtrnorm(newZt, 0.0, sqrt(0.03), lb, ub)) - log(dtrnorm(oldZt, 0.0, sqrt(0.03), lb, ub)) -
         (log(dtrnorm(newZt, oldZt, 0.1, lb, ub)) - log(dtrnorm(oldZt, newZt, 0.1, lb, ub)));
       //tmp = tmp - (log(dtrnorm(newZt, oldZt, 0.1, lb, ub)) - log(dtrnorm(oldZt, newZt, 0.1, lb, ub)));
       pd = exp(tmp(0));
@@ -3247,7 +3247,7 @@ arma::mat updateZSimMD(arma::colvec Y, arma::colvec oldZ, arma::mat Phi,arma::ma
  
    for (t = 0; t < T; t++) {
      
-     Rcpp::Rcout << "t:" << t << std::endl;
+     //Rcpp::Rcout << "t:" << t << std::endl;
      
      adjZt = adjZ(t);
      
@@ -3267,12 +3267,11 @@ arma::mat updateZSimMD(arma::colvec Y, arma::colvec oldZ, arma::mat Phi,arma::ma
         }
        
         
-        Rcpp::Rcout << 1 << std::endl;
+        //Rcpp::Rcout << 1 << std::endl;
         
      V.row(t) = yeojohnsontr(newYZ.row(t), theta, eps) - Mu(t);
      
-     
-     Rcpp::Rcout << 2 << std::endl;
+     //Rcpp::Rcout << 2 << std::endl;
      
      if (t >= q) {
        for (j = 0; j < q; j++) {
@@ -3281,7 +3280,7 @@ arma::mat updateZSimMD(arma::colvec Y, arma::colvec oldZ, arma::mat Phi,arma::ma
        
        MuX = Mu(t) + Vas * Phi;
        
-       Rcpp::Rcout << 3 << std::endl;
+       //Rcpp::Rcout << 3 << std::endl;
        
        tmp = rtrnorm(1, MuX(0), sqrt(sigma2), lb, ub);
          tmp = invyeojohnsontr(tmp, theta, eps);
@@ -3289,7 +3288,7 @@ arma::mat updateZSimMD(arma::colvec Y, arma::colvec oldZ, arma::mat Phi,arma::ma
        
        newZ(t) = newYZ(t) - Y(t);
        
-       Rcpp::Rcout << 4 << std::endl;
+       //Rcpp::Rcout << 4 << std::endl;
       }
      } else {
        newYZ(t) = newYZ(t);
@@ -4106,8 +4105,6 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
       Z = updateZZMD(Y, Z, Phi, Mu, sigma2, 
                   theta_, adjZ, Zlb, Zub, 0, 1, tol);
     
-      
-      ///Rcpp::Rcout << "Z:" << Z << std::endl;
       
       Yyj = Y + Z;
     } else {
