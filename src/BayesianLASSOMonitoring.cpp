@@ -4102,12 +4102,8 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
       //            theta_, leftcensoring, rounding, 0, 1, tol);
       
       Z = updateZZMD(Y, Z, Phi, Mu, sigma2, 
-<<<<<<< HEAD
                   theta_, adjZ, Zlb, Zub, 0, 1, tol);
     
-=======
-                  theta_, adjZ, Zlb, Zub, 3, 1, tol);
->>>>>>> parent of 87e54b6 (update)
       
       Yyj = Y + Z;
     } else {

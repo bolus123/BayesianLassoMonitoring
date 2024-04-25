@@ -243,8 +243,8 @@ GibbsRFLSMXUpdatecpp <- function(Y, q, A, a, b, alpha, beta, theta1, theta2, xi2
     .Call(`_BayesianLASSOMonitoring_GibbsRFLSMXUpdatecpp`, Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, method, monophi, bound0, boundqplus1, nsim, by, burnin, tol, G, oldpars, X, H)
 }
 
-GibbsRFLSMXYJZcpp <- function(Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, method, monophi, bound0, boundqplus1, updateYJ, theta, eps, adjZ, Zlb, Zub, nsim, by, burnin, tol, G = NULL, oldpars = NULL, X = NULL, H = NULL) {
-    .Call(`_BayesianLASSOMonitoring_GibbsRFLSMXYJZcpp`, Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, method, monophi, bound0, boundqplus1, updateYJ, theta, eps, adjZ, Zlb, Zub, nsim, by, burnin, tol, G, oldpars, X, H)
+GibbsRFLSMXYJZcpp <- function(Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, method, monophi, bound0, boundqplus1, updateYJ, theta, leftcensoring, rounding, eps, adjZ, Zlb, Zub, nsim, by, burnin, tol, G = NULL, oldpars = NULL, X = NULL, H = NULL) {
+    .Call(`_BayesianLASSOMonitoring_GibbsRFLSMXYJZcpp`, Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, method, monophi, bound0, boundqplus1, updateYJ, theta, leftcensoring, rounding, eps, adjZ, Zlb, Zub, nsim, by, burnin, tol, G, oldpars, X, H)
 }
 
 GibbsRFLSMXYJZcpp1 <- function(Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, method, monophi, bound0, boundqplus1, updateYJ, theta, leftcensoring, rounding, eps, nsim, by, burnin, tol, G = NULL, oldpars = NULL, X = NULL, H = NULL) {
