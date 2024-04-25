@@ -3241,7 +3241,6 @@ arma::mat updateZSimMD(arma::colvec Y, arma::colvec oldZ, arma::mat Phi,arma::ma
  flg = 1;
  //Rcpp::Rcout << 1 << std::endl;
  
- if (arma::accu(adjZ) > 0) {
    for (t = 0; t < T; t++) {
      adjZt = adjZ(t);
      
@@ -3284,7 +3283,6 @@ arma::mat updateZSimMD(arma::colvec Y, arma::colvec oldZ, arma::mat Phi,arma::ma
    }
    
    
- } 
  
   return(newZ);
   
