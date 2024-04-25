@@ -2713,6 +2713,9 @@ arma::mat updateZtMD(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu,
   double lb = Zlb(t);
   double ub = Zub(t);
   
+  //Rcpp::Rcout << "lb:" << lb << std::endl;
+  //Rcpp::Rcout << "ub:" << ub << std::endl;
+  
   int i;
   int j = 0;
   
@@ -2723,8 +2726,9 @@ arma::mat updateZtMD(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu,
     
     for (i = 0; i < (1 + burnin); i++) {
       u = R::runif(0.0, 1.0);
-      tmp = rtrnorm(1, oldZt, 0.1, lb, ub);
+      tmp = rtrnorm(1, oldZt, 1, lb, ub);
       
+      //Rcpp::Rcout << "oldZt:" << oldZt << std::endl;
       //Rcpp::Rcout << "tmp:" << tmp << std::endl;
       
       newZt = tmp(0);
@@ -2735,7 +2739,7 @@ arma::mat updateZtMD(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu,
       
       tmp = arma::accu(newllhYJ - oldllhYJ);
       tmp = tmp + log(dtrnorm(newZt, 0.0, sqrt(eta2), lb, ub)) - log(dtrnorm(oldZt, 0.0, sqrt(eta2), lb, ub)) -
-        (log(dtrnorm(newZt, oldZt, 0.1, lb, ub)) - log(dtrnorm(oldZt, newZt, 0.1, lb, ub)));
+        (log(dtrnorm(newZt, oldZt, 1, lb, ub)) - log(dtrnorm(oldZt, newZt, 1, lb, ub)));
       //tmp = tmp - (log(dtrnorm(newZt, oldZt, 0.1, lb, ub)) - log(dtrnorm(oldZt, newZt, 0.1, lb, ub)));
       pd = exp(tmp(0));
       
@@ -3055,13 +3059,15 @@ arma::mat updateZSimMD(arma::colvec Y, arma::colvec oldZ, arma::mat Phi,arma::ma
          tmp = invyeojohnsontr(tmp, theta, eps);
          newYZ(t) = tmp(0);
        
-       newZ(t) = newYZ(t) - Y(t);
+       
        
        //Rcpp::Rcout << 4 << std::endl;
       }
      } else {
        newYZ(t) = newYZ(t);
      }
+     
+     newZ(t) = newYZ(t) - Y(t);
      
    }
    
@@ -3875,6 +3881,9 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
     
       
       Yyj = Y + Z;
+      
+      //Rcpp::Rcout << "Z:" << Z << std::endl;
+      
     } else {
       Yyj = Y;
     }
