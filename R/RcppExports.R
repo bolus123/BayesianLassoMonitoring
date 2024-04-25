@@ -195,16 +195,16 @@ updateZt <- function(Y, Z, Phi, Mu, sigma2, theta, t, leftcensoring, rounding, b
     .Call(`_BayesianLASSOMonitoring_updateZt`, Y, Z, Phi, Mu, sigma2, theta, t, leftcensoring, rounding, burnin, tol)
 }
 
-updateZtMD <- function(Y, Z, Phi, Mu, sigma2, theta, t, adjZ, Zlb, Zub, eta2, burnin, tol) {
-    .Call(`_BayesianLASSOMonitoring_updateZtMD`, Y, Z, Phi, Mu, sigma2, theta, t, adjZ, Zlb, Zub, eta2, burnin, tol)
+updateZtMD <- function(Y, Z, Phi, Mu, sigma2, theta, t, adjZ, Zlb, Zub, omega2, burnin, tol) {
+    .Call(`_BayesianLASSOMonitoring_updateZtMD`, Y, Z, Phi, Mu, sigma2, theta, t, adjZ, Zlb, Zub, omega2, burnin, tol)
 }
 
 updateZZ <- function(Y, Z, Phi, Mu, sigma2, theta, leftcensoring, rounding, burnin, nsim, tol) {
     .Call(`_BayesianLASSOMonitoring_updateZZ`, Y, Z, Phi, Mu, sigma2, theta, leftcensoring, rounding, burnin, nsim, tol)
 }
 
-updateZZMD <- function(Y, Z, Phi, Mu, sigma2, theta, adjZ, Zlb, Zub, eta2, burnin, nsim, tol) {
-    .Call(`_BayesianLASSOMonitoring_updateZZMD`, Y, Z, Phi, Mu, sigma2, theta, adjZ, Zlb, Zub, eta2, burnin, nsim, tol)
+updateZZMD <- function(Y, Z, Phi, Mu, sigma2, theta, adjZ, Zlb, Zub, omega2, burnin, nsim, tol) {
+    .Call(`_BayesianLASSOMonitoring_updateZZMD`, Y, Z, Phi, Mu, sigma2, theta, adjZ, Zlb, Zub, omega2, burnin, nsim, tol)
 }
 
 updateZ0 <- function(Y, Z, Phi, Mu, sigma2, theta, leftcensoring, rounding, burnin, nsim, tol) {
@@ -239,8 +239,8 @@ GibbsRFLSMXUpdatecpp <- function(Y, q, A, a, b, alpha, beta, theta1, theta2, xi2
     .Call(`_BayesianLASSOMonitoring_GibbsRFLSMXUpdatecpp`, Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, method, monophi, bound0, boundqplus1, nsim, by, burnin, tol, G, oldpars, X, H)
 }
 
-GibbsRFLSMXYJZcpp <- function(Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, method, monophi, bound0, boundqplus1, updateYJ, theta, eps, adjZ, Zlb, Zub, eta2, nsim, by, burnin, tol, G = NULL, oldpars = NULL, X = NULL, H = NULL) {
-    .Call(`_BayesianLASSOMonitoring_GibbsRFLSMXYJZcpp`, Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, method, monophi, bound0, boundqplus1, updateYJ, theta, eps, adjZ, Zlb, Zub, eta2, nsim, by, burnin, tol, G, oldpars, X, H)
+GibbsRFLSMXYJZcpp <- function(Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, method, monophi, bound0, boundqplus1, updateYJ, theta, eps, adjZ, Zlb, Zub, omega2, nsim, by, burnin, tol, G = NULL, oldpars = NULL, X = NULL, H = NULL) {
+    .Call(`_BayesianLASSOMonitoring_GibbsRFLSMXYJZcpp`, Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, method, monophi, bound0, boundqplus1, updateYJ, theta, eps, adjZ, Zlb, Zub, omega2, nsim, by, burnin, tol, G, oldpars, X, H)
 }
 
 #' Absolute-value-constrained normal distribution
