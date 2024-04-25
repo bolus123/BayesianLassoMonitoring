@@ -283,6 +283,8 @@ GibbsRFLSMXYJZ <- function(Y, bset, X = NULL, H = NULL) {
   boundqplus1 <- bset$boundqplus1
   updateYJ <- bset$updateYJ
   theta <- bset$theta 
+  leftcensoring <- bset$leftcensoring
+  rounding <- bset$rounding
   eps <- bset$eps 
   nsim <- bset$nsim 
   thin <- bset$thin 
@@ -295,7 +297,7 @@ GibbsRFLSMXYJZ <- function(Y, bset, X = NULL, H = NULL) {
                              theta1, theta2, xi2,
                              method, mono, bound0, boundqplus1,
                              updateYJ, theta,
-                             eps,
+                             leftcensoring, rounding, eps,
                              adjZ, Zlb, Zub,
                              nsim, thin, burnin,
                              eps, 

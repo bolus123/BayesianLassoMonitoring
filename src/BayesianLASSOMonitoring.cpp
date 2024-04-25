@@ -2822,7 +2822,7 @@ arma::mat updateZZMD(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu,
     
   }
   
-  //Rcpp::Rcout << "Zout:" << Zout << std::endl;
+  Rcpp::Rcout << "Zout:" << Zout << std::endl;
   
   return(Zout);
   
@@ -3907,7 +3907,7 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
                                double& theta1, double& theta2, double& xi2,
                                Rcpp::String& method, int monophi, double& bound0, double& boundqplus1,
                                int updateYJ, double& theta,
-                               double eps,
+                               int leftcensoring, int rounding, double eps,
                                arma::colvec adjZ, arma::colvec Zlb, arma::colvec Zub,
                                int& nsim, int& by, int& burnin,
                                double& tol, 
@@ -4024,7 +4024,6 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
   arma::mat Z(T, 1);
   Z.zeros();
   
-  
   //////////////////////////
   
  arma::mat Phiout(q, nsim); 
@@ -4077,7 +4076,7 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
    Z = updateZSimMD(Y, Z, Phi, Mu, sigma2, 
                   theta_, tol, 
                   adjZ, Zlb, Zub);
-  
+   
    //Rcpp::Rcout << "Z:" << Z << std::endl;
  }
   
@@ -4103,8 +4102,12 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
       //            theta_, leftcensoring, rounding, 0, 1, tol);
       
       Z = updateZZMD(Y, Z, Phi, Mu, sigma2, 
+<<<<<<< HEAD
                   theta_, adjZ, Zlb, Zub, 0, 1, tol);
     
+=======
+                  theta_, adjZ, Zlb, Zub, 3, 1, tol);
+>>>>>>> parent of 87e54b6 (update)
       
       Yyj = Y + Z;
     } else {
@@ -4218,7 +4221,7 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
         }
         //Yyjout.col(rr) = Yyj;
         
-        if ((arma::accu(adjZ) > 0)) {
+        if ((leftcensoring == 1) || (rounding == 1)) {
           Zout.col(rr) = Z;
         }
         rr = rr + 1;
