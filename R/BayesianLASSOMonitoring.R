@@ -1520,7 +1520,7 @@ Ph1MultipleTesting.Y01RollL1 <- function(model, hw = 7, FAP0 = 0.2, side = "righ
 #' 
 #' 
 #' @export
-Ph1MultipleTesting.GammaNormBC <- function(model, w = 7, FAP0 = 0.2, side = "right-sided") {
+Ph1MultipleTesting.GammaNormBC <- function(model, w = 7, FAP0 = 0.05, method = "bonferroni", side = "right-sided") {
   
   n <- length(model$Y)
   q <- dim(model$Phi)[2]
@@ -1539,7 +1539,7 @@ Ph1MultipleTesting.GammaNormBC <- function(model, w = 7, FAP0 = 0.2, side = "rig
   
     TauGamma <- (model$Tau * model$Gamma)
     cs <- rowMeans(TauGamma) / apply(TauGamma, 1, sd)
-    adj.alpha <- FAP0 / m #BC
+    #adj.alpha <- FAP0 / m #BC
     #adj.alpha <- 1 - (1 - FAP0) ^ (1 / m) #sidak
     
     if (side == "right-sided") {
@@ -1555,9 +1555,13 @@ Ph1MultipleTesting.GammaNormBC <- function(model, w = 7, FAP0 = 0.2, side = "rig
     }
     
     
-    sig <- pvalue <= adj.alpha
-    grand.sig <- sum(sig) > 0
+    #sig <- pvalue <= adj.alpha
+    #grand.sig <- sum(sig) > 0
   }
+  
+  adj.alpha <- p.adjust(pvalue, method)
+  sig <- adj.alpha <= FAP0
+  grand.sig <- sum(sig) > 0
   
   tmpsig <- model$H %*% sig
   tmpsig[tmpsig > 1] <- 1
@@ -1595,7 +1599,7 @@ Ph1MultipleTesting.GammaNormBC <- function(model, w = 7, FAP0 = 0.2, side = "rig
 #' 
 #' 
 #' @export
-Ph1MultipleTesting.GammaLaplaceBC <- function(model, w = 7, FAP0 = 0.2, side = "right-sided") {
+Ph1MultipleTesting.GammaLaplaceBC <- function(model, w = 7, FAP0 = 0.05, method = "bonferroni", side = "right-sided") {
   
   n <- length(model$Y)
   q <- dim(model$Phi)[2]
@@ -1615,7 +1619,7 @@ Ph1MultipleTesting.GammaLaplaceBC <- function(model, w = 7, FAP0 = 0.2, side = "
     TauGamma <- (model$Tau * model$Gamma)
     mm <- apply(TauGamma, 1, median)
     cs <- mm / rowMeans(abs(TauGamma - mm))
-    adj.alpha <- FAP0 / m #BC
+    #adj.alpha <- FAP0 / m #BC
     #adj.alpha <- 1 - (1 - FAP0) ^ (1 / m) #sidak
     
     if (side == "right-sided") {
@@ -1630,10 +1634,13 @@ Ph1MultipleTesting.GammaLaplaceBC <- function(model, w = 7, FAP0 = 0.2, side = "
       pvalue <- pvalue * 2
     }
     
-    
-    sig <- pvalue <= adj.alpha
-    grand.sig <- sum(sig) > 0
+    #sig <- pvalue <= adj.alpha
+    #grand.sig <- sum(sig) > 0
   }
+  
+  adj.alpha <- p.adjust(pvalue, method)
+  sig <- adj.alpha <= FAP0
+  grand.sig <- sum(sig) > 0
   
   tmpsig <- model$H %*% sig
   tmpsig[tmpsig > 1] <- 1

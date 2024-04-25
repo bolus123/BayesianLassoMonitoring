@@ -4,7 +4,13 @@
 \alias{Ph1MultipleTesting.GammaNormBC}
 \title{Bayesian LASSO Phase I Monitoring}
 \usage{
-Ph1MultipleTesting.GammaNormBC(model, w = 7, FAP0 = 0.2, side = "right-sided")
+Ph1MultipleTesting.GammaNormBC(
+  model,
+  w = 7,
+  FAP0 = 0.05,
+  method = "bonferroni",
+  side = "right-sided"
+)
 }
 \arguments{
 \item{model}{is model.}
