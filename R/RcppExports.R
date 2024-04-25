@@ -195,16 +195,16 @@ updateZt <- function(Y, Z, Phi, Mu, sigma2, theta, t, leftcensoring, rounding, b
     .Call(`_BayesianLASSOMonitoring_updateZt`, Y, Z, Phi, Mu, sigma2, theta, t, leftcensoring, rounding, burnin, tol)
 }
 
-updateZtMD <- function(Y, Z, Phi, Mu, sigma2, theta, t, missingdata, missingdatalb, missingdataub, burnin, tol) {
-    .Call(`_BayesianLASSOMonitoring_updateZtMD`, Y, Z, Phi, Mu, sigma2, theta, t, missingdata, missingdatalb, missingdataub, burnin, tol)
+updateZtMD <- function(Y, Z, Phi, Mu, sigma2, theta, t, adjZ, Zlb, Zub, burnin, tol) {
+    .Call(`_BayesianLASSOMonitoring_updateZtMD`, Y, Z, Phi, Mu, sigma2, theta, t, adjZ, Zlb, Zub, burnin, tol)
 }
 
 updateZZ <- function(Y, Z, Phi, Mu, sigma2, theta, leftcensoring, rounding, burnin, nsim, tol) {
     .Call(`_BayesianLASSOMonitoring_updateZZ`, Y, Z, Phi, Mu, sigma2, theta, leftcensoring, rounding, burnin, nsim, tol)
 }
 
-updateZZMD <- function(Y, Z, Phi, Mu, sigma2, theta, missingdata, missingdatalb, missingdataub, burnin, nsim, tol) {
-    .Call(`_BayesianLASSOMonitoring_updateZZMD`, Y, Z, Phi, Mu, sigma2, theta, missingdata, missingdatalb, missingdataub, burnin, nsim, tol)
+updateZZMD <- function(Y, Z, Phi, Mu, sigma2, theta, adjZ, Zlb, Zub, burnin, nsim, tol) {
+    .Call(`_BayesianLASSOMonitoring_updateZZMD`, Y, Z, Phi, Mu, sigma2, theta, adjZ, Zlb, Zub, burnin, nsim, tol)
 }
 
 updateZ0 <- function(Y, Z, Phi, Mu, sigma2, theta, leftcensoring, rounding, burnin, nsim, tol) {
@@ -227,12 +227,24 @@ updateZSim <- function(Y, oldZ, Phi, Mu, sigma2, theta, eps, leftcensoring, roun
     .Call(`_BayesianLASSOMonitoring_updateZSim`, Y, oldZ, Phi, Mu, sigma2, theta, eps, leftcensoring, rounding)
 }
 
+#' Absolute-value-constrained normal distribution
+#' 
+#' gets a sample from a normal distribution whose absolute observations are constrained.
+#'
+#' @param n is sample size.
+#' @export
+#' @examples
+#' rtwosegnorm(10, 1, 2, 0, 1)
+updateZSimMD <- function(Y, oldZ, Phi, Mu, sigma2, theta, eps, adjZ, Zlb, Zub) {
+    .Call(`_BayesianLASSOMonitoring_updateZSimMD`, Y, oldZ, Phi, Mu, sigma2, theta, eps, adjZ, Zlb, Zub)
+}
+
 GibbsRFLSMXUpdatecpp <- function(Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, method, monophi, bound0, boundqplus1, nsim, by, burnin, tol, G = NULL, oldpars = NULL, X = NULL, H = NULL) {
     .Call(`_BayesianLASSOMonitoring_GibbsRFLSMXUpdatecpp`, Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, method, monophi, bound0, boundqplus1, nsim, by, burnin, tol, G, oldpars, X, H)
 }
 
-GibbsRFLSMXYJZcpp <- function(Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, method, monophi, bound0, boundqplus1, updateYJ, theta, leftcensoring, rounding, eps, missingdata, missingdatalb, missingdataub, nsim, by, burnin, tol, G = NULL, oldpars = NULL, X = NULL, H = NULL) {
-    .Call(`_BayesianLASSOMonitoring_GibbsRFLSMXYJZcpp`, Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, method, monophi, bound0, boundqplus1, updateYJ, theta, leftcensoring, rounding, eps, missingdata, missingdatalb, missingdataub, nsim, by, burnin, tol, G, oldpars, X, H)
+GibbsRFLSMXYJZcpp <- function(Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, method, monophi, bound0, boundqplus1, updateYJ, theta, leftcensoring, rounding, eps, adjZ, Zlb, Zub, nsim, by, burnin, tol, G = NULL, oldpars = NULL, X = NULL, H = NULL) {
+    .Call(`_BayesianLASSOMonitoring_GibbsRFLSMXYJZcpp`, Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, method, monophi, bound0, boundqplus1, updateYJ, theta, leftcensoring, rounding, eps, adjZ, Zlb, Zub, nsim, by, burnin, tol, G, oldpars, X, H)
 }
 
 GibbsRFLSMXYJZcpp1 <- function(Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, method, monophi, bound0, boundqplus1, updateYJ, theta, leftcensoring, rounding, eps, nsim, by, burnin, tol, G = NULL, oldpars = NULL, X = NULL, H = NULL) {

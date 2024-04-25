@@ -468,8 +468,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // updateZtMD
-arma::mat updateZtMD(arma::colvec Y, arma::colvec Z, arma::mat Phi, arma::mat Mu, double sigma2, double theta, int t, arma::colvec missingdata, double missingdatalb, double missingdataub, int burnin, double tol);
-RcppExport SEXP _BayesianLASSOMonitoring_updateZtMD(SEXP YSEXP, SEXP ZSEXP, SEXP PhiSEXP, SEXP MuSEXP, SEXP sigma2SEXP, SEXP thetaSEXP, SEXP tSEXP, SEXP missingdataSEXP, SEXP missingdatalbSEXP, SEXP missingdataubSEXP, SEXP burninSEXP, SEXP tolSEXP) {
+arma::mat updateZtMD(arma::colvec Y, arma::colvec Z, arma::mat Phi, arma::mat Mu, double sigma2, double theta, int t, arma::colvec adjZ, arma::colvec Zlb, arma::colvec Zub, int burnin, double tol);
+RcppExport SEXP _BayesianLASSOMonitoring_updateZtMD(SEXP YSEXP, SEXP ZSEXP, SEXP PhiSEXP, SEXP MuSEXP, SEXP sigma2SEXP, SEXP thetaSEXP, SEXP tSEXP, SEXP adjZSEXP, SEXP ZlbSEXP, SEXP ZubSEXP, SEXP burninSEXP, SEXP tolSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -480,12 +480,12 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type sigma2(sigma2SEXP);
     Rcpp::traits::input_parameter< double >::type theta(thetaSEXP);
     Rcpp::traits::input_parameter< int >::type t(tSEXP);
-    Rcpp::traits::input_parameter< arma::colvec >::type missingdata(missingdataSEXP);
-    Rcpp::traits::input_parameter< double >::type missingdatalb(missingdatalbSEXP);
-    Rcpp::traits::input_parameter< double >::type missingdataub(missingdataubSEXP);
+    Rcpp::traits::input_parameter< arma::colvec >::type adjZ(adjZSEXP);
+    Rcpp::traits::input_parameter< arma::colvec >::type Zlb(ZlbSEXP);
+    Rcpp::traits::input_parameter< arma::colvec >::type Zub(ZubSEXP);
     Rcpp::traits::input_parameter< int >::type burnin(burninSEXP);
     Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
-    rcpp_result_gen = Rcpp::wrap(updateZtMD(Y, Z, Phi, Mu, sigma2, theta, t, missingdata, missingdatalb, missingdataub, burnin, tol));
+    rcpp_result_gen = Rcpp::wrap(updateZtMD(Y, Z, Phi, Mu, sigma2, theta, t, adjZ, Zlb, Zub, burnin, tol));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -511,8 +511,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // updateZZMD
-arma::mat updateZZMD(arma::colvec Y, arma::colvec Z, arma::mat Phi, arma::mat Mu, double sigma2, double theta, arma::colvec missingdata, double missingdatalb, double missingdataub, int burnin, int nsim, double tol);
-RcppExport SEXP _BayesianLASSOMonitoring_updateZZMD(SEXP YSEXP, SEXP ZSEXP, SEXP PhiSEXP, SEXP MuSEXP, SEXP sigma2SEXP, SEXP thetaSEXP, SEXP missingdataSEXP, SEXP missingdatalbSEXP, SEXP missingdataubSEXP, SEXP burninSEXP, SEXP nsimSEXP, SEXP tolSEXP) {
+arma::mat updateZZMD(arma::colvec Y, arma::colvec Z, arma::mat Phi, arma::mat Mu, double sigma2, double theta, arma::colvec adjZ, arma::colvec Zlb, arma::colvec Zub, int burnin, int nsim, double tol);
+RcppExport SEXP _BayesianLASSOMonitoring_updateZZMD(SEXP YSEXP, SEXP ZSEXP, SEXP PhiSEXP, SEXP MuSEXP, SEXP sigma2SEXP, SEXP thetaSEXP, SEXP adjZSEXP, SEXP ZlbSEXP, SEXP ZubSEXP, SEXP burninSEXP, SEXP nsimSEXP, SEXP tolSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -522,13 +522,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat >::type Mu(MuSEXP);
     Rcpp::traits::input_parameter< double >::type sigma2(sigma2SEXP);
     Rcpp::traits::input_parameter< double >::type theta(thetaSEXP);
-    Rcpp::traits::input_parameter< arma::colvec >::type missingdata(missingdataSEXP);
-    Rcpp::traits::input_parameter< double >::type missingdatalb(missingdatalbSEXP);
-    Rcpp::traits::input_parameter< double >::type missingdataub(missingdataubSEXP);
+    Rcpp::traits::input_parameter< arma::colvec >::type adjZ(adjZSEXP);
+    Rcpp::traits::input_parameter< arma::colvec >::type Zlb(ZlbSEXP);
+    Rcpp::traits::input_parameter< arma::colvec >::type Zub(ZubSEXP);
     Rcpp::traits::input_parameter< int >::type burnin(burninSEXP);
     Rcpp::traits::input_parameter< int >::type nsim(nsimSEXP);
     Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
-    rcpp_result_gen = Rcpp::wrap(updateZZMD(Y, Z, Phi, Mu, sigma2, theta, missingdata, missingdatalb, missingdataub, burnin, nsim, tol));
+    rcpp_result_gen = Rcpp::wrap(updateZZMD(Y, Z, Phi, Mu, sigma2, theta, adjZ, Zlb, Zub, burnin, nsim, tol));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -608,6 +608,26 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// updateZSimMD
+arma::mat updateZSimMD(arma::colvec Y, arma::colvec oldZ, arma::mat Phi, arma::mat Mu, double sigma2, double theta, double eps, arma::colvec adjZ, arma::colvec Zlb, arma::colvec Zub);
+RcppExport SEXP _BayesianLASSOMonitoring_updateZSimMD(SEXP YSEXP, SEXP oldZSEXP, SEXP PhiSEXP, SEXP MuSEXP, SEXP sigma2SEXP, SEXP thetaSEXP, SEXP epsSEXP, SEXP adjZSEXP, SEXP ZlbSEXP, SEXP ZubSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::colvec >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< arma::colvec >::type oldZ(oldZSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Phi(PhiSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Mu(MuSEXP);
+    Rcpp::traits::input_parameter< double >::type sigma2(sigma2SEXP);
+    Rcpp::traits::input_parameter< double >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
+    Rcpp::traits::input_parameter< arma::colvec >::type adjZ(adjZSEXP);
+    Rcpp::traits::input_parameter< arma::colvec >::type Zlb(ZlbSEXP);
+    Rcpp::traits::input_parameter< arma::colvec >::type Zub(ZubSEXP);
+    rcpp_result_gen = Rcpp::wrap(updateZSimMD(Y, oldZ, Phi, Mu, sigma2, theta, eps, adjZ, Zlb, Zub));
+    return rcpp_result_gen;
+END_RCPP
+}
 // GibbsRFLSMXUpdatecpp
 Rcpp::List GibbsRFLSMXUpdatecpp(arma::colvec Y, int q, arma::mat A, double a, double b, double alpha, double beta, double theta1, double theta2, double xi2, Rcpp::String method, int monophi, double bound0, double boundqplus1, int nsim, int by, int burnin, double tol, Rcpp::Nullable<Rcpp::NumericMatrix> G, Rcpp::Nullable<Rcpp::List> oldpars, Rcpp::Nullable<Rcpp::NumericMatrix> X, Rcpp::Nullable<Rcpp::NumericMatrix> H);
 RcppExport SEXP _BayesianLASSOMonitoring_GibbsRFLSMXUpdatecpp(SEXP YSEXP, SEXP qSEXP, SEXP ASEXP, SEXP aSEXP, SEXP bSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP theta1SEXP, SEXP theta2SEXP, SEXP xi2SEXP, SEXP methodSEXP, SEXP monophiSEXP, SEXP bound0SEXP, SEXP boundqplus1SEXP, SEXP nsimSEXP, SEXP bySEXP, SEXP burninSEXP, SEXP tolSEXP, SEXP GSEXP, SEXP oldparsSEXP, SEXP XSEXP, SEXP HSEXP) {
@@ -641,8 +661,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // GibbsRFLSMXYJZcpp
-Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y, int& q, arma::mat& A, double& a, double& b, double& alpha, double& beta, double& theta1, double& theta2, double& xi2, Rcpp::String& method, int monophi, double& bound0, double& boundqplus1, int updateYJ, double& theta, int leftcensoring, int rounding, double eps, arma::colvec missingdata, double missingdatalb, double missingdataub, int& nsim, int& by, int& burnin, double& tol, Rcpp::Nullable<Rcpp::NumericMatrix> G, Rcpp::Nullable<Rcpp::List> oldpars, Rcpp::Nullable<Rcpp::NumericMatrix> X, Rcpp::Nullable<Rcpp::NumericMatrix> H);
-RcppExport SEXP _BayesianLASSOMonitoring_GibbsRFLSMXYJZcpp(SEXP YSEXP, SEXP qSEXP, SEXP ASEXP, SEXP aSEXP, SEXP bSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP theta1SEXP, SEXP theta2SEXP, SEXP xi2SEXP, SEXP methodSEXP, SEXP monophiSEXP, SEXP bound0SEXP, SEXP boundqplus1SEXP, SEXP updateYJSEXP, SEXP thetaSEXP, SEXP leftcensoringSEXP, SEXP roundingSEXP, SEXP epsSEXP, SEXP missingdataSEXP, SEXP missingdatalbSEXP, SEXP missingdataubSEXP, SEXP nsimSEXP, SEXP bySEXP, SEXP burninSEXP, SEXP tolSEXP, SEXP GSEXP, SEXP oldparsSEXP, SEXP XSEXP, SEXP HSEXP) {
+Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y, int& q, arma::mat& A, double& a, double& b, double& alpha, double& beta, double& theta1, double& theta2, double& xi2, Rcpp::String& method, int monophi, double& bound0, double& boundqplus1, int updateYJ, double& theta, int leftcensoring, int rounding, double eps, arma::colvec adjZ, arma::colvec Zlb, arma::colvec Zub, int& nsim, int& by, int& burnin, double& tol, Rcpp::Nullable<Rcpp::NumericMatrix> G, Rcpp::Nullable<Rcpp::List> oldpars, Rcpp::Nullable<Rcpp::NumericMatrix> X, Rcpp::Nullable<Rcpp::NumericMatrix> H);
+RcppExport SEXP _BayesianLASSOMonitoring_GibbsRFLSMXYJZcpp(SEXP YSEXP, SEXP qSEXP, SEXP ASEXP, SEXP aSEXP, SEXP bSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP theta1SEXP, SEXP theta2SEXP, SEXP xi2SEXP, SEXP methodSEXP, SEXP monophiSEXP, SEXP bound0SEXP, SEXP boundqplus1SEXP, SEXP updateYJSEXP, SEXP thetaSEXP, SEXP leftcensoringSEXP, SEXP roundingSEXP, SEXP epsSEXP, SEXP adjZSEXP, SEXP ZlbSEXP, SEXP ZubSEXP, SEXP nsimSEXP, SEXP bySEXP, SEXP burninSEXP, SEXP tolSEXP, SEXP GSEXP, SEXP oldparsSEXP, SEXP XSEXP, SEXP HSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -665,9 +685,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type leftcensoring(leftcensoringSEXP);
     Rcpp::traits::input_parameter< int >::type rounding(roundingSEXP);
     Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
-    Rcpp::traits::input_parameter< arma::colvec >::type missingdata(missingdataSEXP);
-    Rcpp::traits::input_parameter< double >::type missingdatalb(missingdatalbSEXP);
-    Rcpp::traits::input_parameter< double >::type missingdataub(missingdataubSEXP);
+    Rcpp::traits::input_parameter< arma::colvec >::type adjZ(adjZSEXP);
+    Rcpp::traits::input_parameter< arma::colvec >::type Zlb(ZlbSEXP);
+    Rcpp::traits::input_parameter< arma::colvec >::type Zub(ZubSEXP);
     Rcpp::traits::input_parameter< int& >::type nsim(nsimSEXP);
     Rcpp::traits::input_parameter< int& >::type by(bySEXP);
     Rcpp::traits::input_parameter< int& >::type burnin(burninSEXP);
@@ -676,7 +696,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::List> >::type oldpars(oldparsSEXP);
     Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericMatrix> >::type X(XSEXP);
     Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericMatrix> >::type H(HSEXP);
-    rcpp_result_gen = Rcpp::wrap(GibbsRFLSMXYJZcpp(Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, method, monophi, bound0, boundqplus1, updateYJ, theta, leftcensoring, rounding, eps, missingdata, missingdatalb, missingdataub, nsim, by, burnin, tol, G, oldpars, X, H));
+    rcpp_result_gen = Rcpp::wrap(GibbsRFLSMXYJZcpp(Y, q, A, a, b, alpha, beta, theta1, theta2, xi2, method, monophi, bound0, boundqplus1, updateYJ, theta, leftcensoring, rounding, eps, adjZ, Zlb, Zub, nsim, by, burnin, tol, G, oldpars, X, H));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -885,6 +905,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BayesianLASSOMonitoring_updateZ0", (DL_FUNC) &_BayesianLASSOMonitoring_updateZ0, 11},
     {"_BayesianLASSOMonitoring_GibbsRFLSMYeoJohnsonZcpp1", (DL_FUNC) &_BayesianLASSOMonitoring_GibbsRFLSMYeoJohnsonZcpp1, 26},
     {"_BayesianLASSOMonitoring_updateZSim", (DL_FUNC) &_BayesianLASSOMonitoring_updateZSim, 9},
+    {"_BayesianLASSOMonitoring_updateZSimMD", (DL_FUNC) &_BayesianLASSOMonitoring_updateZSimMD, 10},
     {"_BayesianLASSOMonitoring_GibbsRFLSMXUpdatecpp", (DL_FUNC) &_BayesianLASSOMonitoring_GibbsRFLSMXUpdatecpp, 22},
     {"_BayesianLASSOMonitoring_GibbsRFLSMXYJZcpp", (DL_FUNC) &_BayesianLASSOMonitoring_GibbsRFLSMXYJZcpp, 30},
     {"_BayesianLASSOMonitoring_GibbsRFLSMXYJZcpp1", (DL_FUNC) &_BayesianLASSOMonitoring_GibbsRFLSMXYJZcpp1, 27},
