@@ -2707,8 +2707,8 @@ arma::mat updateZtMD(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu,
   
   int missingdatat = missingdata(t);
 
-  Rcpp::Rcout << "t:" << t << std::endl;
-  Rcpp::Rcout << "missingdatat:" << missingdatat << std::endl;
+  //Rcpp::Rcout << "t:" << t << std::endl;
+  //Rcpp::Rcout << "missingdatat:" << missingdatat << std::endl;
   
   double lb = missingdatalb;
   double ub = missingdataub;
@@ -2716,16 +2716,16 @@ arma::mat updateZtMD(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu,
   int i;
   int j = 0;
   
-  Rcpp::Rcout << "oldZt:" << oldZt << std::endl;
+  //Rcpp::Rcout << "oldZt:" << oldZt << std::endl;
   
   if (missingdatat > 0) {
-    Rcpp::Rcout << "run:" << 1 << std::endl;
+    //Rcpp::Rcout << "run:" << 1 << std::endl;
     
     for (i = 0; i < (1 + burnin); i++) {
       u = R::runif(0.0, 1.0);
       tmp = rtrnorm(1, oldZt, 0.1, lb, ub);
       
-      Rcpp::Rcout << "tmp:" << tmp << std::endl;
+      //Rcpp::Rcout << "tmp:" << tmp << std::endl;
       
       newZt = tmp(0);
       newZ(t) = newZt;
@@ -3199,6 +3199,86 @@ arma::mat updateZSim(arma::colvec Y, arma::colvec oldZ, arma::mat Phi,arma::mat 
   return(newZ);
   
 }
+
+
+//' Absolute-value-constrained normal distribution
+//' 
+//' gets a sample from a normal distribution whose absolute observations are constrained.
+//'
+//' @param n is sample size.
+//' @export
+//' @examples
+//' rtwosegnorm(10, 1, 2, 0, 1)
+// [[Rcpp::export]]
+arma::mat updateZSimMD(arma::colvec Y, arma::colvec oldZ, arma::mat Phi,arma::mat Mu, double sigma2, 
+                  double theta, double eps, 
+                  arma::colvec missingdata, double missingdatalb, double missingdataub) {
+  
+  double pi = 3.14159265359;
+  
+  arma::colvec newYZ = Y + oldZ; 
+  arma::colvec newZ = oldZ;
+  int q = Phi.n_rows;
+  //Rcpp::Rcout << q << std::endl;
+  int T = Y.n_elem;
+  //Rcpp::Rcout << T << std::endl;
+ arma::mat V(T, 1); 
+ arma::mat Vas(1, q);
+ arma::mat MuX(1, 1); 
+ arma::mat MuinvhX(1, 1); 
+ arma::mat varinhX(1, 1); 
+ 
+ double lb = 0.0;
+ double ub = arma::datum::inf;
+ 
+ int flg;
+ arma::mat tmp(1, 1);
+ 
+ int missingdatat;
+ 
+ int t;
+ int j;
+ 
+ //Rcpp::Rcout << 1 << std::endl;
+ 
+ if (arma::accu(missingdata) > 0) {
+   for (t = 0; t < T; t++) {
+     missingdatat = missingdata(t);
+     
+     if (missingdatat > 0) {
+       flg = 0;
+     
+     V.row(t) = yeojohnsontr(newYZ.row(t), theta, eps) - Mu(t);
+     
+     
+     if (t >= q) {
+       for (j = 0; j < q; j++) {
+         Vas(j) = V(t - j - 1);
+       }
+       
+       MuX = Mu(t) + Vas * Phi;
+       
+       if (flg == 1) {
+         tmp = rtrnorm(1, MuX(0), sqrt(sigma2), lb, ub);
+         tmp = invyeojohnsontr(tmp, theta, eps);
+         newYZ(t) = tmp(0);
+       } else {
+         newYZ(t) = newYZ(t);
+       }
+       
+       newZ(t) = newYZ(t) - Y(t);
+      }
+     }
+     
+   }
+   
+   
+ } 
+ 
+  return(newZ);
+  
+}
+
 
 
 
@@ -3967,6 +4047,12 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
  arma::mat Zout;
  if ((leftcensoring == 1) || (rounding == 1) || (arma::accu(missingdata) > 0)) {
    Zout.set_size(T, nsim);
+   
+   Z = updateZSim(Y, Z, Phi, Mu, sigma2, 
+                  theta_, tol, leftcensoring, rounding);
+   Z = updateZSimMD(Y, Z, Phi, Mu, sigma2, 
+                  theta_, tol, 
+                  missingdata, missingdatalb, missingdataub);
  }
   
   //////////////////////////
