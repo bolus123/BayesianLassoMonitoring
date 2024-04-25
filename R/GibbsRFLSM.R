@@ -292,13 +292,14 @@ GibbsRFLSMXYJZ <- function(Y, bset, X = NULL, H = NULL) {
   adjZ <- bset$adjZ
   Zlb <- bset$Zlb
   Zub <- bset$Zub
+  eta2 <- bset$eta2
   
   model <- GibbsRFLSMXYJZcpp(Y, q, A, a, b, alpha, beta, 
                              theta1, theta2, xi2,
                              method, mono, bound0, boundqplus1,
                              updateYJ, theta,
                              eps,
-                             adjZ, Zlb, Zub,
+                             adjZ, Zlb, Zub, eta2,
                              nsim, thin, burnin,
                              eps, 
                              NULL,
