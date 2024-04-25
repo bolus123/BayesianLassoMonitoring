@@ -4053,6 +4053,8 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
    Z = updateZSimMD(Y, Z, Phi, Mu, sigma2, 
                   theta_, tol, 
                   missingdata, missingdatalb, missingdataub);
+   
+   Rcpp::Rcout << "Z:" << Z << std::endl;
  }
   
   //////////////////////////
