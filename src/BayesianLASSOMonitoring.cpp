@@ -2677,7 +2677,7 @@ arma::mat updateZt(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu, d
 
 // [[Rcpp::export]]
 arma::mat updateZtMD(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu, double sigma2, 
-                        double theta, int t, arma::colvec adjZ, arma::colvec Zlb, arma::colvec Zub, double eta2,
+                        double theta, int t, arma::colvec adjZ, arma::colvec Zlb, arma::colvec Zub, double omega2,
                         int burnin, double tol) {
   
   double pi = 3.14159265359;
@@ -2738,7 +2738,7 @@ arma::mat updateZtMD(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu,
       newllhYJ = llhYJf(newYZ, Phi, Mu, sigma2, theta, tol);
       
       tmp = arma::accu(newllhYJ - oldllhYJ);
-      tmp = tmp + log(dtrnorm(newZt, 0.0, sqrt(eta2), lb, ub)) - log(dtrnorm(oldZt, 0.0, sqrt(eta2), lb, ub)) -
+      tmp = tmp + log(dtrnorm(newZt, 0.0, sqrt(omega2), lb, ub)) - log(dtrnorm(oldZt, 0.0, sqrt(omega2), lb, ub)) -
         (log(dtrnorm(newZt, oldZt, 1, lb, ub)) - log(dtrnorm(oldZt, newZt, 1, lb, ub)));
       //tmp = tmp - (log(dtrnorm(newZt, oldZt, 0.1, lb, ub)) - log(dtrnorm(oldZt, newZt, 0.1, lb, ub)));
       pd = exp(tmp(0));
@@ -2799,7 +2799,7 @@ arma::mat updateZZ(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu, d
 
 // [[Rcpp::export]]
 arma::mat updateZZMD(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu, double sigma2, 
-                        double theta, arma::colvec adjZ, arma::colvec Zlb, arma::colvec Zub, double eta2,
+                        double theta, arma::colvec adjZ, arma::colvec Zlb, arma::colvec Zub, double omega2,
                         int burnin, int nsim, double tol) {
   
   int T = Y.n_elem;
@@ -2818,7 +2818,7 @@ arma::mat updateZZMD(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu,
     for (t = 0; t < T; t++) {
       
       tmpZ.row(t) = updateZtMD(Y, tmpZ, Phi, Mu, sigma2, 
-                        theta, t, adjZ, Zlb, Zub, eta2,
+                        theta, t, adjZ, Zlb, Zub, omega2,
                         burnin, tol);
     }
     //Rcpp::Rcout << "tmpZ:" << tmpZ << std::endl;
@@ -3683,7 +3683,7 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
                                Rcpp::String& method, int monophi, double& bound0, double& boundqplus1,
                                int updateYJ, double& theta,
                                double eps,
-                               arma::colvec adjZ, arma::colvec Zlb, arma::colvec Zub, double eta2,
+                               arma::colvec adjZ, arma::colvec Zlb, arma::colvec Zub, double omega2,
                                int& nsim, int& by, int& burnin,
                                double& tol, 
                                Rcpp::Nullable<Rcpp::NumericMatrix> G = R_NilValue,
@@ -3877,7 +3877,7 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
       //            theta_, leftcensoring, rounding, 0, 1, tol);
       
       Z = updateZZMD(Y, Z, Phi, Mu, sigma2, 
-                  theta_, adjZ, Zlb, Zub, eta2, 0, 1, tol);
+                  theta_, adjZ, Zlb, Zub, omega2, 0, 1, tol);
     
       
       Yyj = Y + Z;
