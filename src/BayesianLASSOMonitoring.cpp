@@ -2647,7 +2647,7 @@ arma::mat updateZt(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu, d
       newllhYJ = llhYJf(newYZ, Phi, Mu, sigma2, theta, tol);
       
       tmp = arma::accu(newllhYJ - oldllhYJ);
-      tmp = tmp + log(dtrnorm(newZt, 0.0, 0.05, lb, ub)) - log(dtrnorm(oldZt, 0.0, 0.05, lb, ub)) -
+      tmp = tmp + log(dtrnorm(newZt, 0.0, 0.1, lb, ub)) - log(dtrnorm(oldZt, 0.0, 0.1, lb, ub)) -
         (log(dtrnorm(newZt, oldZt, 0.1, lb, ub)) - log(dtrnorm(oldZt, newZt, 0.1, lb, ub)));
       //tmp = tmp - (log(dtrnorm(newZt, oldZt, 0.1, lb, ub)) - log(dtrnorm(oldZt, newZt, 0.1, lb, ub)));
       pd = exp(tmp(0));
@@ -2669,6 +2669,81 @@ arma::mat updateZt(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu, d
   }
   
   
+  
+  return(Ztout);
+  
+}
+
+
+// [[Rcpp::export]]
+arma::mat updateZtMD(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu, double sigma2, 
+                        double theta, int t, arma::colvec missingdata, double missingdatalb, double missingdataub, 
+                        int burnin, double tol) {
+  
+  double pi = 3.14159265359;
+  
+  int T = Y.n_elem;
+  int q = Phi.n_rows;
+  
+  double u;
+  double A;
+  
+  arma::mat tmp;
+  
+  double oldZt = Z(t);
+  arma::colvec oldZ = Z;
+  double newZt = oldZt;
+  arma::colvec newZ = oldZ;
+  
+  arma::colvec oldYZ = Y + oldZ;
+  arma::colvec newYZ = Y + newZ;
+  
+  arma::mat oldllhYJ = llhYJf(oldYZ, Phi, Mu, sigma2, theta, tol);
+  arma::mat newllhYJ = oldllhYJ; 
+ 
+  arma::mat Ztout(1, 1);
+  
+  double pd;
+  
+  int missingdatat = missingdata(t);
+  
+  double lb = missingdatalb;
+  double ub = missingdataub;
+  
+  int i;
+  int j = 0;
+  
+  if (missingdatat == 1) {
+    for (i = 0; i < (1 + burnin); i++) {
+      u = R::runif(0.0, 1.0);
+      tmp = rtrnorm(1, oldZt, 0.1, lb, ub);
+      newZt = tmp(0);
+      newZ(t) = newZt;
+      newYZ = Y + newZ;
+      
+      newllhYJ = llhYJf(newYZ, Phi, Mu, sigma2, theta, tol);
+      
+      tmp = arma::accu(newllhYJ - oldllhYJ);
+      tmp = tmp + log(dtrnorm(newZt, 0.0, 0.1, lb, ub)) - log(dtrnorm(oldZt, 0.0, 0.1, lb, ub)) -
+        (log(dtrnorm(newZt, oldZt, 0.1, lb, ub)) - log(dtrnorm(oldZt, newZt, 0.1, lb, ub)));
+      //tmp = tmp - (log(dtrnorm(newZt, oldZt, 0.1, lb, ub)) - log(dtrnorm(oldZt, newZt, 0.1, lb, ub)));
+      pd = exp(tmp(0));
+      
+      A = std::min(1.0, pd);
+      
+      if (u < A) {
+        oldZt = newZt;
+        oldllhYJ = newllhYJ;
+      } 
+      
+      if (i >= burnin) {
+        Ztout(j, 0) = oldZt;
+        j = j + 1;
+      }
+    }
+  } else {
+    Ztout.zeros();
+  }
   
   return(Ztout);
   
@@ -2704,6 +2779,42 @@ arma::mat updateZZ(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu, d
   return(Zout);
   
 }
+
+
+// [[Rcpp::export]]
+arma::mat updateZZMD(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu, double sigma2, 
+                        double theta, arma::colvec missingdata, double missingdatalb, double missingdataub, 
+                        int burnin, int nsim, double tol) {
+  
+  int T = Y.n_elem;
+  int q = Phi.n_rows;
+  
+  arma::mat tmpZ = Z;
+  arma::mat Zout(T, nsim);
+  //Rcpp::Rcout << "Zout:" << Zout << std::endl;
+  arma::mat tmpZt(1, 1);
+  tmpZt.zeros();
+  
+  int i = 0;
+  int t = 0;
+  
+  for (i = 0; i < nsim; i++) {
+    for (t = 0; t < T; t++) {
+      
+      tmpZ.row(t) = updateZtMD(Y, tmpZ, Phi, Mu, sigma2, 
+                        theta, t, missingdata, missingdatalb, missingdataub, 
+                        burnin, tol);
+    }
+    //Rcpp::Rcout << "tmpZ:" << tmpZ << std::endl;
+    Zout.col(i) = tmpZ;
+    //Rcpp::Rcout << "Zout:" << Zout << std::endl;
+  }
+  
+  return(Zout);
+  
+}
+
+
 
 // [[Rcpp::export]]
 arma::mat updateZ0(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu, double sigma2, 
@@ -3684,6 +3795,7 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
                                Rcpp::String& method, int monophi, double& bound0, double& boundqplus1,
                                int updateYJ, double& theta,
                                int leftcensoring, int rounding, double eps,
+                               arma::colvec missingdata, double missingdatalb, double missingdataub,
                                int& nsim, int& by, int& burnin,
                                double& tol, 
                                Rcpp::Nullable<Rcpp::NumericMatrix> G = R_NilValue,
@@ -3870,6 +3982,10 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
     if ((leftcensoring == 1) || (rounding == 1)) {
       Z = updateZZ(Y, Z, Phi, Mu, sigma2, 
                   theta_, leftcensoring, rounding, 0, 1, tol);
+      
+      Z = updateZZMD(Y, Z, Phi, Mu, sigma2, 
+                  theta_, missingdata, missingdatalb, missingdataub, 0, 1, tol);
+      
       Yyj = Y + Z;
     } else {
       Yyj = Y;

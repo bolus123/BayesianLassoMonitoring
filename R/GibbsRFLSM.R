@@ -289,13 +289,16 @@ GibbsRFLSMXYJZ <- function(Y, bset, X = NULL, H = NULL) {
   nsim <- bset$nsim 
   thin <- bset$thin 
   burnin <- bset$burnin 
-  
+  missingdata <- bset$missingdata
+  missingdatalb <- bset$missingdatalb
+  missingdataub <- bset$missingdataub
   
   model <- GibbsRFLSMXYJZcpp(Y, q, A, a, b, alpha, beta, 
                              theta1, theta2, xi2,
                              method, mono, bound0, boundqplus1,
                              updateYJ, theta,
                              leftcensoring, rounding, eps,
+                             missingdata, missingdatalb, missingdataub,
                              nsim, thin, burnin,
                              eps, 
                              NULL,
