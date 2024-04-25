@@ -2707,8 +2707,8 @@ arma::mat updateZtMD(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu,
   
   double adjZt = adjZ(t);
 
-  //Rcpp::Rcout << "t:" << t << std::endl;
-  //Rcpp::Rcout << "missingdatat:" << missingdatat << std::endl;
+  Rcpp::Rcout << "t:" << t << std::endl;
+  Rcpp::Rcout << "adjZt:" << adjZt << std::endl;
   
   double lb = Zlb(t);
   double ub = Zub(t);
@@ -2716,16 +2716,16 @@ arma::mat updateZtMD(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu,
   int i;
   int j = 0;
   
-  //Rcpp::Rcout << "oldZt:" << oldZt << std::endl;
+  Rcpp::Rcout << "oldZt:" << oldZt << std::endl;
   
   if (adjZt > 0) {
-    //Rcpp::Rcout << "run:" << 1 << std::endl;
+    Rcpp::Rcout << "run:" << 1 << std::endl;
     
     for (i = 0; i < (1 + burnin); i++) {
       u = R::runif(0.0, 1.0);
       tmp = rtrnorm(1, oldZt, 0.1, lb, ub);
       
-      //Rcpp::Rcout << "tmp:" << tmp << std::endl;
+      Rcpp::Rcout << "tmp:" << tmp << std::endl;
       
       newZt = tmp(0);
       newZ(t) = newZt;
