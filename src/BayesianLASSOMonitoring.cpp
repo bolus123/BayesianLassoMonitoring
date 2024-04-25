@@ -2707,8 +2707,8 @@ arma::mat updateZtMD(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu,
   
   double adjZt = adjZ(t);
 
-  Rcpp::Rcout << "t:" << t << std::endl;
-  Rcpp::Rcout << "adjZt:" << adjZt << std::endl;
+  //Rcpp::Rcout << "t:" << t << std::endl;
+  //Rcpp::Rcout << "adjZt:" << adjZt << std::endl;
   
   double lb = Zlb(t);
   double ub = Zub(t);
@@ -2716,16 +2716,16 @@ arma::mat updateZtMD(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu,
   int i;
   int j = 0;
   
-  Rcpp::Rcout << "oldZt:" << oldZt << std::endl;
+  //Rcpp::Rcout << "oldZt:" << oldZt << std::endl;
   
   if (adjZt > 0) {
-    Rcpp::Rcout << "run:" << 1 << std::endl;
+    //Rcpp::Rcout << "run:" << 1 << std::endl;
     
     for (i = 0; i < (1 + burnin); i++) {
       u = R::runif(0.0, 1.0);
       tmp = rtrnorm(1, oldZt, 0.1, lb, ub);
       
-      Rcpp::Rcout << "tmp:" << tmp << std::endl;
+      //Rcpp::Rcout << "tmp:" << tmp << std::endl;
       
       newZt = tmp(0);
       newZ(t) = newZt;
@@ -4065,7 +4065,7 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
  Rcpp::List tmpList;
  
  arma::mat Zout;
- if ((leftcensoring == 1) || (rounding == 1) || (arma::accu(adjZ) > 0)) {
+ if ((arma::accu(adjZ) > 0)) {
    Zout.set_size(T, nsim);
    
    //Z = updateZSim(Y, Z, Phi, Mu, sigma2, 
@@ -4074,7 +4074,7 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
                   theta_, tol, 
                   adjZ, Zlb, Zub);
    
-   Rcpp::Rcout << "Z:" << Z << std::endl;
+   //Rcpp::Rcout << "Z:" << Z << std::endl;
  }
   
   //////////////////////////
@@ -4094,12 +4094,12 @@ Rcpp::List GibbsRFLSMXYJZcpp(arma::colvec& Y,int& q,
     }
     
     //if (updateZ == 1) {
-    if ((leftcensoring == 1) || (rounding == 1) || (arma::accu(adjZ) > 0)) {
+    if ( (arma::accu(adjZ) > 0)) {
       //Z = updateZZ(Y, Z, Phi, Mu, sigma2, 
       //            theta_, leftcensoring, rounding, 0, 1, tol);
       
       Z = updateZZMD(Y, Z, Phi, Mu, sigma2, 
-                  theta_, adjZ, Zlb, Zub, 0, 1, tol);
+                  theta_, adjZ, Zlb, Zub, 3, 1, tol);
       
       Yyj = Y + Z;
     } else {
