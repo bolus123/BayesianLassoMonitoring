@@ -2755,6 +2755,8 @@ arma::mat updateZtMD(arma::colvec Y, arma::colvec Z, arma::mat Phi,arma::mat Mu,
     Ztout.zeros();
   }
   
+  Rcpp::Rcout << "Ztout:" << Ztout << std::endl;
+  
   return(Ztout);
   
 }
