@@ -1538,7 +1538,10 @@ Ph1MultipleTesting.GammaNormBC <- function(model, w = 7, FAP0 = 0.05, method = "
     lim <- cbind(rep(-Inf, m), rep(Inf, m))
   
     TauGamma <- (model$Tau * model$Gamma)
-    cs <- rowMeans(TauGamma) / apply(TauGamma, 1, sd)
+    ss <- apply(TauGamma, 1, sd)
+    cs <- rowMeans(TauGamma) / ss
+    
+    cs[which(is.na(cs) & (ss == 0))] <- 0
     #adj.alpha <- FAP0 / m #BC
     #adj.alpha <- 1 - (1 - FAP0) ^ (1 / m) #sidak
     
@@ -1599,6 +1602,89 @@ Ph1MultipleTesting.GammaNormBC <- function(model, w = 7, FAP0 = 0.05, method = "
 #' 
 #' 
 #' @export
+Ph1MultipleTesting.GammaNormCUMSUMBC <- function(model, w = 7, FAP0 = 0.05, method = "BY", side = "right-sided") {
+  
+  n <- length(model$Y)
+  q <- dim(model$Phi)[2]
+  
+  grand.sig <- 0
+  
+  sig <- 0
+  pvalue <- NULL
+  lim <- NULL
+  
+  if (!is.null(model$H)) {
+    m <- dim(model$H)[2]
+    sig <- rep(0, m)
+    pvalue <- rep(NA, m)
+    lim <- cbind(rep(-Inf, m), rep(Inf, m))
+  
+    TauGamma <- model$H %*% (model$Tau * model$Gamma)
+    ss <- apply(TauGamma, 1, sd)
+    cs <- rowMeans(TauGamma) / ss
+    
+    cs[which(is.na(cs) & (ss == 0))] <- 0
+    #adj.alpha <- FAP0 / m #BC
+    #adj.alpha <- 1 - (1 - FAP0) ^ (1 / m) #sidak
+    
+    if (side == "right-sided") {
+      pvalue <- 1 - pnorm(cs)
+    } else if (side == "left-sided") {
+      pvalue <- pnorm(cs)
+    } else {
+      pvalue1 <- 1 - pnorm(cs)
+      pvalue2 <- pnorm(cs)
+      pvalue <- cbind(pvalue1, pvalue2)
+      pvalue <- apply(pvalue, 1, min)
+      pvalue <- pvalue * 2
+    }
+    
+    
+    #sig <- pvalue <= adj.alpha
+    #grand.sig <- sum(sig) > 0
+  }
+  
+  adj.alpha <- p.adjust(pvalue, method)
+  sig <- adj.alpha <= FAP0
+  grand.sig <- sum(sig) > 0
+  
+  tmpsig <- sig#model$H %*% sig
+  tmpsig[tmpsig > 1] <- 1
+  
+  tmpsig[tmpsig < 0] <- 0
+  tmpsig <- diff(tmpsig)
+  tmpsig <- c(0, tmpsig)
+  
+  tmpsel <- which(tmpsig == 1)
+  nsel <- length(tmpsel)
+  
+  if (nsel > 0) {
+    for (i in 1:nsel) {
+      tmpsig[tmpsel[i]:(tmpsel[i] + w - 1)] <- 1
+    }
+  }
+  
+  
+  list("grandsig" = grand.sig, "cs" = cs, 
+       "sig" = tmpsig, 
+       "parsig" = sig,
+       "pvalue" = pvalue, "adj.pvalue" = adj.alpha)
+  
+}
+
+
+#' Bayesian LASSO Phase I Monitoring
+#' 
+#' gets a posterior sample using Gibbs sampling for Random Flexible Level Shift Model
+#' @param model is model.
+#' @param nsim is .
+#' @param FAP0 is 
+#' @param log is model.
+#' @param const is .
+#' @param sta is 
+#' 
+#' 
+#' @export
 Ph1MultipleTesting.GammaLaplaceBC <- function(model, w = 7, FAP0 = 0.05, method = "bonferroni", side = "right-sided") {
   
   n <- length(model$Y)
@@ -1618,7 +1704,11 @@ Ph1MultipleTesting.GammaLaplaceBC <- function(model, w = 7, FAP0 = 0.05, method 
   
     TauGamma <- (model$Tau * model$Gamma)
     mm <- apply(TauGamma, 1, median)
-    cs <- mm / rowMeans(abs(TauGamma - mm))
+    ss <- rowMeans(abs(TauGamma - mm))
+    cs <- mm / ss
+    
+    cs[which(is.na(cs) & (ss == 0))] <- 0
+    
     #adj.alpha <- FAP0 / m #BC
     #adj.alpha <- 1 - (1 - FAP0) ^ (1 / m) #sidak
     
