@@ -1507,6 +1507,69 @@ Ph1MultipleTesting.Y01RollL1 <- function(model, hw = 7, FAP0 = 0.2, side = "righ
 }
 
 
+#' Bayesian LASSO Phase I Monitoring
+#' 
+#' gets a posterior sample using Gibbs sampling for Random Flexible Level Shift Model
+#' @param model is model.
+#' @param nsim is .
+#' @param FAP0 is 
+#' @param log is model.
+#' @param const is .
+#' @param sta is 
+#' 
+#' 
+#' @export
+Ph1MultipleTesting.GammaZNBC <- function(model, w = 7, FAP0 = 0.05, method = 'holm', side = "right-sided") {
+  m <- dim(model$Gamma)[1]
+  pvalue <- rep(1, m)
+  
+  for (i in 1:m) {
+    tmp <- model$Tau[i, ] == 0
+    tmpmean <- mean(tmp)
+    tmpgammamean <- mean(model$Gamma[i, !tmp])
+    tmpgammasd <- sd(model$Gamma[i, !tmp])
+      
+    if (!is.na(tmpgammasd)) {
+      if (side == "right-sided") {
+        pvalue[i] <- (1 - tmpmean) * (1 - pnorm(tmpgammamean / tmpgammasd))
+      } else if (side == "left-sided") {
+        pvalue[i] <- (1 - tmpmean) * (pnorm(tmpgammamean / tmpgammasd))
+      } else {
+        tmppvalue1 <- 1 - pnorm(tmpgammamean / tmpgammasd)
+        tmppvalue2 <- pnorm(tmpgammamean / tmpgammasd)
+        pvalue[i] <- (1 - tmpmean) * (2 * min(tmppvalue1, tmppvalue2))
+      }
+      
+    }
+    
+    
+  }
+ 
+  adj.pvalue = p.adjust(pvalue, method)
+  
+  sig <- adj.pvalue <= FAP0
+  grand.sig <- sum(sig) > 0
+  
+  tmpsig <- model$H %*% sig
+  tmpsig[tmpsig > 1] <- 1
+  tmpsig <- diff(model$H %*% sig)
+  tmpsig[tmpsig < 0] <- 0
+  tmpsig <- c(0, tmpsig)
+  
+  tmpsel <- which(tmpsig == 1)
+  nsel <- length(tmpsel)
+  
+  if (nsel > 0) {
+    for (i in 1:nsel) {
+      tmpsig[tmpsel[i]:(tmpsel[i] + w - 1)] <- 1
+    }
+  }
+  
+  list("grandsig" = grand.sig, "sig" = tmpsig, 
+       "parsig" = sig, "pvalue" = pvalue, "adj.pvalue" = adj.pvalue) 
+
+}
+
 
 #' Bayesian LASSO Phase I Monitoring
 #' 
@@ -1562,8 +1625,8 @@ Ph1MultipleTesting.GammaNormBC <- function(model, w = 7, FAP0 = 0.05, method = "
     #grand.sig <- sum(sig) > 0
   }
   
-  adj.alpha <- p.adjust(pvalue, method)
-  sig <- adj.alpha <= FAP0
+  adj.pvalue <- p.adjust(pvalue, method)
+  sig <- adj.pvalue <= FAP0
   grand.sig <- sum(sig) > 0
   
   tmpsig <- model$H %*% sig
@@ -1585,7 +1648,7 @@ Ph1MultipleTesting.GammaNormBC <- function(model, w = 7, FAP0 = 0.05, method = "
   list("grandsig" = grand.sig, "cs" = cs, 
        "sig" = tmpsig, 
        "parsig" = sig,
-       "pvalue" = pvalue, "adj.alpha" = adj.alpha)
+       "pvalue" = pvalue, "adj.pvalue" = adj.pvalue)
   
 }
 
@@ -1644,8 +1707,8 @@ Ph1MultipleTesting.GammaNormCUMSUMBC <- function(model, w = 7, FAP0 = 0.05, meth
     #grand.sig <- sum(sig) > 0
   }
   
-  adj.alpha <- p.adjust(pvalue, method)
-  sig <- adj.alpha <= FAP0
+  adj.pvalue <- p.adjust(pvalue, method)
+  sig <- adj.pvalue <= FAP0
   grand.sig <- sum(sig) > 0
   
   tmpsig <- sig#model$H %*% sig
@@ -1668,7 +1731,7 @@ Ph1MultipleTesting.GammaNormCUMSUMBC <- function(model, w = 7, FAP0 = 0.05, meth
   list("grandsig" = grand.sig, "cs" = cs, 
        "sig" = tmpsig, 
        "parsig" = sig,
-       "pvalue" = pvalue, "adj.pvalue" = adj.alpha)
+       "pvalue" = pvalue, "adj.pvalue" = adj.pvalue)
   
 }
 
@@ -1728,8 +1791,8 @@ Ph1MultipleTesting.GammaLaplaceBC <- function(model, w = 7, FAP0 = 0.05, method 
     #grand.sig <- sum(sig) > 0
   }
   
-  adj.alpha <- p.adjust(pvalue, method)
-  sig <- adj.alpha <= FAP0
+  adj.pvalue <- p.adjust(pvalue, method)
+  sig <- adj.pvalue <= FAP0
   grand.sig <- sum(sig) > 0
   
   tmpsig <- model$H %*% sig
@@ -1751,7 +1814,7 @@ Ph1MultipleTesting.GammaLaplaceBC <- function(model, w = 7, FAP0 = 0.05, method 
   list("grandsig" = grand.sig, "cs" = cs, 
        "sig" = tmpsig, 
        "parsig" = sig,
-       "pvalue" = pvalue, "adj.alpha" = adj.alpha)
+       "pvalue" = pvalue, "adj.pvalue" = adj.pvalue)
   
 }
 
