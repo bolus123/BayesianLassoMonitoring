@@ -1602,7 +1602,7 @@ Ph1MultipleTesting.GammaNormBC <- function(model, w = 7, FAP0 = 0.05, method = "
 #' 
 #' 
 #' @export
-Ph1MultipleTesting.GammaNormCUMSUMBC <- function(model, w = 7, FAP0 = 0.05, method = "BY", side = "right-sided") {
+Ph1MultipleTesting.GammaNormCUMSUMBC <- function(model, w = 7, FAP0 = 0.05, method = "holm", side = "right-sided") {
   
   n <- length(model$Y)
   q <- dim(model$Phi)[2]
