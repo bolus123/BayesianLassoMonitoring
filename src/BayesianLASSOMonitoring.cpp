@@ -867,12 +867,12 @@ Rcpp::List updateZetaBeta(arma::colvec tmpY,arma::colvec Phi,arma::mat Zeta,arma
         p = p1;
       }
       
-      Rcpp::Rcout << "p:" << p << std::endl;
-      Rcpp::Rcout << "p1:" << p1 << std::endl;
-      Rcpp::Rcout << "p2:" << p2 << std::endl;
-      Rcpp::Rcout << "pho:" << pho << std::endl;
-      Rcpp::Rcout << "tmpzetanot:" << tmpzetanot << std::endl;
-      Rcpp::Rcout << "tmpzetat:" << tmpzetat << std::endl;
+      //Rcpp::Rcout << "p:" << p << std::endl;
+      //Rcpp::Rcout << "p1:" << p1 << std::endl;
+      //Rcpp::Rcout << "p2:" << p2 << std::endl;
+      //Rcpp::Rcout << "pho:" << pho << std::endl;
+      //Rcpp::Rcout << "tmpzetanot:" << tmpzetanot << std::endl;
+      //Rcpp::Rcout << "tmpzetat:" << tmpzetat << std::endl;
       
       Zeta(jj) = R::rbinom(1, p);
       pvec(jj) = p;
