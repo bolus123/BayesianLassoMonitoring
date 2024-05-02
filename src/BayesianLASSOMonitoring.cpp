@@ -659,6 +659,8 @@ Rcpp::List updateTauGamma(arma::colvec tmpY,arma::colvec Phi,arma::mat Tau,arma:
   double tmpzetat;
  arma::mat tmp;
   double p;
+  double p1;
+  double p2;
   
  arma::mat Gammathat(m, 1);
   double st;
@@ -707,7 +709,16 @@ Rcpp::List updateTauGamma(arma::colvec tmpY,arma::colvec Phi,arma::mat Tau,arma:
       tmpzetat = log(tmpzetat);
       
       //p = pho * tmpzetat / (pho * tmpzetat + (1 - pho) * tmpzetanot
-      p = pho / (pho + (1 - pho) * exp(tmpzetanot - tmpzetat));
+      //p = pho / (pho + (1 - pho) * exp(tmpzetanot - tmpzetat));
+      
+      p1 = pho * exp(tmpzetat) / (pho * exp(tmpzetat) + (1 - pho) * exp(tmpzetanot));
+      p2 = pho / (pho + (1 - pho) * exp(tmpzetanot - tmpzetat));
+      
+      if (isnan(p1) > isnan(p2)) {
+        p = p2;
+      } else {
+        p = p1;
+      }
       
       Tau(jj) = R::rbinom(1, p);
       pvec(jj) = p;
@@ -791,6 +802,8 @@ Rcpp::List updateZetaBeta(arma::colvec tmpY,arma::colvec Phi,arma::mat Zeta,arma
   double tmpzetat;
  arma::mat tmp;
   double p;
+  double p1;
+  double p2;
   
  arma::mat Betathat(m, 1);
   double st;
@@ -838,9 +851,18 @@ Rcpp::List updateZetaBeta(arma::colvec tmpY,arma::colvec Phi,arma::mat Zeta,arma
       tmpzetat = tmp(0);
       tmpzetat = log(tmpzetat);
       
-      //p = pho * tmpzetat / (pho * tmpzetat + (1 - pho) * tmpzetanot);
-      p = pho / (pho + (1 - pho) * exp(tmpzetanot - tmpzetat));
+      p1 = pho * exp(tmpzetat) / (pho * exp(tmpzetat) + (1 - pho) * exp(tmpzetanot));
+      p2 = pho / (pho + (1 - pho) * exp(tmpzetanot - tmpzetat));
       
+      if (isnan(p1) > isnan(p2)) {
+        p = p2;
+      } else {
+        p = p1;
+      }
+      
+      Rcpp::Rcout << "p:" << p << std::endl;
+      Rcpp::Rcout << "p1:" << p << std::endl;
+      Rcpp::Rcout << "p2:" << p << std::endl;
       Rcpp::Rcout << "pho:" << pho << std::endl;
       Rcpp::Rcout << "tmpzetanot:" << tmpzetanot << std::endl;
       Rcpp::Rcout << "tmpzetat:" << tmpzetat << std::endl;
