@@ -845,13 +845,13 @@ Rcpp::List updateZetaBeta(arma::colvec tmpY,arma::colvec Phi,arma::mat Zeta,arma
       
       tmp =arma::exp(-1.0 / 2.0 / sigma2 * zetanot.t() * D * zetanot);
       tmpzetanot = tmp(0);
-      Rcpp::Rcout << "exptmpzetanot:" << tmpzetanot << std::endl;
+      //Rcpp::Rcout << "exptmpzetanot:" << tmpzetanot << std::endl;
       
       tmpzetanot = log(tmpzetanot);
       
       tmp =arma::exp(-1.0 / 2.0 / sigma2 * zetat.t() * D * zetat);
       tmpzetat = tmp(0);
-      Rcpp::Rcout << "exptmpzetat:" << tmpzetat << std::endl;
+      //Rcpp::Rcout << "exptmpzetat:" << tmpzetat << std::endl;
       
       tmpzetat = log(tmpzetat);
       
