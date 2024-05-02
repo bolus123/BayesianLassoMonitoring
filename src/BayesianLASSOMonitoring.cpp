@@ -851,6 +851,9 @@ Rcpp::List updateZetaBeta(arma::colvec tmpY,arma::colvec Phi,arma::mat Zeta,arma
       tmpzetat = tmp(0);
       tmpzetat = log(tmpzetat);
       
+      Rcpp::Rcout << "zetanot:" << zetanot << std::endl;
+      Rcpp::Rcout << "zetat:" << zetat << std::endl;
+      
       p1 = pho * exp(tmpzetat) / (pho * exp(tmpzetat) + (1 - pho) * exp(tmpzetanot));
       p2 = pho / (pho + (1 - pho) * exp(tmpzetanot - tmpzetat));
       
@@ -861,8 +864,8 @@ Rcpp::List updateZetaBeta(arma::colvec tmpY,arma::colvec Phi,arma::mat Zeta,arma
       }
       
       Rcpp::Rcout << "p:" << p << std::endl;
-      Rcpp::Rcout << "p1:" << p << std::endl;
-      Rcpp::Rcout << "p2:" << p << std::endl;
+      Rcpp::Rcout << "p1:" << p1 << std::endl;
+      Rcpp::Rcout << "p2:" << p2 << std::endl;
       Rcpp::Rcout << "pho:" << pho << std::endl;
       Rcpp::Rcout << "tmpzetanot:" << tmpzetanot << std::endl;
       Rcpp::Rcout << "tmpzetat:" << tmpzetat << std::endl;
