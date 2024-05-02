@@ -30,6 +30,18 @@ arma::colvec rinvgaussiancpp(int n, double mu, double lambda){
   return out;
 }
 
+//' Absolute-value-constrained normal distribution
+//' 
+//' gets a sample from a normal distribution whose absolute observations are constrained.
+//'
+//' @param n is sample size.
+//' @param a is the lower bound in absolute value.
+//' @param b is the upper bound in absolute value.
+//' @param mean is a mean.
+//' @param sd is a standard deviation.
+//' @export
+//' @examples
+//' rtwosegnorm(10, 1, 2, 0, 1)
 // [[Rcpp::export]]
 arma::mat getV(arma::colvec Y, int q) {
   int T = Y.n_elem;
