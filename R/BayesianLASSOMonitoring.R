@@ -1545,7 +1545,7 @@ Ph1MultipleTesting.GammaZNBC <- function(model, w = 7, FAP0 = 0.05, method = 'ho
     
   }
  
-  adj.pvalue <- p.adjust(pvalue, method)
+  adj.pvalue = p.adjust(pvalue, method)
   
   sig <- adj.pvalue <= FAP0
   grand.sig <- sum(sig) > 0
