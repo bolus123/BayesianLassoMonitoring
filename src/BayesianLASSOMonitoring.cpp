@@ -714,7 +714,7 @@ Rcpp::List updateTauGamma(arma::colvec tmpY,arma::colvec Phi,arma::mat Tau,arma:
       p1 = pho * exp(tmpzetat) / (pho * exp(tmpzetat) + (1 - pho) * exp(tmpzetanot));
       p2 = pho / (pho + (1 - pho) * exp(tmpzetanot - tmpzetat));
       
-      if (isnan(p1) > isnan(p2)) {
+      if (std::isnan(p1) > std::isnan(p2)) {
         p = p2;
       } else {
         p = p1;
@@ -861,7 +861,7 @@ Rcpp::List updateZetaBeta(arma::colvec tmpY,arma::colvec Phi,arma::mat Zeta,arma
       p1 = pho * exp(tmpzetat) / (pho * exp(tmpzetat) + (1 - pho) * exp(tmpzetanot));
       p2 = pho / (pho + (1 - pho) * exp(tmpzetanot - tmpzetat));
       
-      if (isnan(p1) > isnan(p2)) {
+      if (std::isnan(p1) > std::isnan(p2)) {
         p = p2;
       } else {
         p = p1;
