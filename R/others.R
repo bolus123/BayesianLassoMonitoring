@@ -1,3 +1,88 @@
+##############################################
+# Matrix form
+##############################################
+invert.q <- function(coef) {
+  out <- 1
+
+  if (all(abs(coef) < 1)) {
+    minmod <- min(Mod(polyroot(c(1, coef))))
+
+    if (minmod <= 1) {
+      out <- 0
+    }
+  } else {
+    out <- 0
+  }
+
+  return(out)
+}
+
+pars.mat <- function(n, parsVec, norder = 1) {
+  Check <- invert.q(parsVec)
+  if (Check == 0) {
+    NULL
+  } else {
+    Mat <- diag(n)
+    for (i in 1:norder) {
+      Mat <- Mat + Diag(rep(parsVec[i], n - i), k = -i)
+    }
+    Mat
+  }
+}
+
+
+#' simulate realizations using INAR(3) with zero-inflated Poisson innovation and one sustained shift
+#' 
+#' @param n is the length
+#' @param alpha is the alpha
+#' @param lambda is the mean of poisson mixture
+#' @param pi is the proportion of zeros
+#' @param h is the start point of shift
+#' @param delta is the value of the standardized shift
+#' @param burnin is the length of the burn-in period
+#' @export
+#' @examples
+#' nsim <- 100
+#' burnin <- 100
+#' T <- 100
+#' q <- 5
+#' H <- getHMatMT(T, q)
+#' Y <- arima.sim(list(ar = 0.5), n = T)
+#' 
+#' alpha <- c(0.03083069, 0.06242601, 0.09120189)
+#' lambda <- 0.239385
+#' pi <- 0.1453097
+#'
+#' TT <- 183
+#' w <- 28
+#' Y <- rzinpoisinar3(TT + w, alpha, lambda, pi, ceiling(TT / 2) + w, delta = 1, burnin = burnin)
+#' 
+sigma.mat <- function(n, order = c(1, 0, 0), phi.vec = 0.5, theta.vec = NULL, sigma2 = 1, burn.in = 50) {
+  if (order[1] == 0) {
+    phiMat <- diag(n + burn.in)
+  } else {
+    phiMat <- pars.mat(n + burn.in, -phi.vec, norder = order[1])
+  }
+
+  if (order[3] == 0) {
+    thetaMat <- diag(n + burn.in)
+  } else {
+    thetaMat <- pars.mat(n + burn.in, theta.vec, norder = order[3])
+  }
+
+  out <- solve(phiMat) %*% thetaMat %*% t(thetaMat) %*% t(solve(phiMat)) * sigma2
+
+  gamma0 <- out[dim(out)[1], dim(out)[2]]
+
+  if (burn.in > 0) {
+    out <- out[-c(1:burn.in), -c(1:burn.in)]
+  }
+
+  list(sigma.mat = out, sqrtsigma.mat = sqrtm(out)$B, gamma0 = gamma0)
+}
+
+
+
 mu1f <- function(delta, lambda0, pi0) {
   
   mu0 <- (1 - pi0) * lambda0
@@ -129,8 +214,31 @@ rzinpoisinar3 <- function(n, alpha, lambda, pi, h, delta, burnin = 100) {
 #' 
 rarma <- function(object, n, h, delta, xreg = NULL, nsim = 100, burnin = 50, lowerbound = 0) {
   
+  order <- c(0, 0, 0)
+  
+  nar <- sum(object$model$phi != 0)
+  nma <- sum(object$model$theta != 0)
+  
+  if (nar > 0) {
+    order[1] <- nar
+    phi.vec <- object$model$phi[which(object$model$phi != 0)]
+  } else {
+    phi.vec <- NULL
+  }
+  
+  if (nma > 0) {
+    order[3] <- nma
+    theta.vec <- object$model$phi[which(object$model$theta != 0)]
+  } else {
+    theta.vec <- NULL
+  }
+  
+  ss <- sigma.mat(100, order = order, phi.vec = phi.vec, theta.vec = theta.vec, sigma2 = object$sigma2, 
+                  burn.in = 50)
+ 
+  
   mu <- rep(0, n)
-  mu[h:n] <- mu[h:n] + sqrt(var(object$x)) * delta
+  mu[h:n] <- mu[h:n] + sqrt(ss$gamma0) * delta
   
   ts <- simulate(object, nsim = n, future = FALSE, xreg = xreg)
   
