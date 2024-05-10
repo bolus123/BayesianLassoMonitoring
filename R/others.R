@@ -234,7 +234,7 @@ rarma <- function(object, n, h, delta, xreg = NULL, nsim = 100, burnin = 50, low
   }
   
   ss <- sigma.mat(100, order = order, phi.vec = phi.vec, theta.vec = theta.vec, sigma2 = object$sigma2, 
-                  burn.in = 50)
+                  burn.in = burnin)
  
   
   mu <- rep(0, n)
@@ -250,6 +250,75 @@ rarma <- function(object, n, h, delta, xreg = NULL, nsim = 100, burnin = 50, low
   ts[which(ts < lowerbound)] <- lowerbound
   ts
 }
+
+
+#' simulate realizations using ARMA(p, q) and one sustained shift
+#' 
+#' @param n is the length
+#' @param phi is the alpha
+#' @param theta is the mean of poisson mixture
+#' @param sigma2 is the mean of poisson mixture
+#' @param h is the proportion of zeros
+#' @param delta is the start point of shift
+#' @param burnin is the length of the burn-in period
+#' @param burnin is the length of the burn-in period
+#' @export
+#' @examples
+#' nsim <- 100
+#' burnin <- 100
+#' T <- 100
+#' q <- 5
+#' H <- getHMatMT(T, q)
+#' Y <- arima.sim(list(ar = 0.5), n = T)
+#' 
+#' alpha <- c(0.03083069, 0.06242601, 0.09120189)
+#' lambda <- 0.239385
+#' pi <- 0.1453097
+#'
+#' TT <- 183
+#' w <- 28
+#' Y <- rzinpoisinar3(TT + w, alpha, lambda, pi, ceiling(TT / 2) + w, delta = 1, burnin = burnin)
+#' 
+rar <- function(ar, n, h, delta, burnin = 50, 
+                dist.innov = "norm") {
+  
+  
+  
+  if (dist.innov == "norm") {
+    innov <- rnorm(n + burnin)
+    ss <- sigma.mat(100, order = c(1, 0, 0), phi.vec = ar, theta.vec = NULL, sigma2 = 1, 
+                  burn.in = burnin)
+    mu <- rep(0, n)
+    mu[h:n] <- mu[h:n] + sqrt(ss$gamma0) * delta
+  } else if (dist.innov == "gamma") {
+    innov <- (rgamma(n + burnin, shape = 1, scale = 1))
+    ss <- sigma.mat(100, order = c(1, 0, 0), phi.vec = ar, theta.vec = NULL, 
+                    sigma2 = 5 * 25, burn.in = burnin)
+    mu <- rep(0, n)
+    mu[h:n] <- mu[h:n] + sqrt(ss$gamma0) * delta
+  } else if (dist.innov == "poisson") {
+    innov <- rpois(n + burnin, 0.6)
+    ss <- sigma.mat(100, order = c(1, 0, 0), phi.vec = ar, theta.vec = NULL, 
+                    sigma2 = 0.6, burn.in = burnin)
+    mu <- rep(0, n)
+    mu[h:n] <- mu[h:n] + sqrt(ss$gamma0) * delta
+  }
+  
+  ts <- arima.sim(list(order = c(1, 0, 0), ar = ar), n = n, n.start = burnin, 
+                  start.innov = innov[1:burnin], innov = innov[(burnin + 1):(burnin + n)])
+  
+  ts <- ts + mu
+  
+  if (dist.innov == "poisson") {
+    ts <- round(ts)
+  }
+  
+  #innov <- rnorm(n, mu, sqrt(object$sigma2))
+  #ts <- simulate(object, nsim = n, future = FALSE, innov = innov, xreg = xreg)
+
+  ts
+}
+
 
 #' Caculate the moving averages
 #' 
