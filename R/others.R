@@ -17,8 +17,12 @@ invert.q <- function(coef) {
   return(out)
 }
 
-pars.mat <- function(n, parsVec, norder = 1) {
-  Check <- invert.q(parsVec)
+pars.mat <- function(n, parsVec, norder = 1, checkinv = TRUE) {
+  Check <- 1
+  if (checkinv == TRUE) {
+    Check <- invert.q(parsVec)
+  }
+  
   if (Check == 0) {
     NULL
   } else {
