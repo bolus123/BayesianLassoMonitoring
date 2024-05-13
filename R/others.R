@@ -228,7 +228,7 @@ rarma <- function(object, n, h, delta, xreg = NULL, nsim = 100, burnin = 50, low
   
   if (nma > 0) {
     order[3] <- nma
-    theta.vec <- object$model$phi[which(object$model$theta != 0)]
+    theta.vec <- object$model$theta[which(object$model$theta != 0)]
   } else {
     theta.vec <- NULL
   }
