@@ -71,7 +71,7 @@ sigma.mat <- function(n, order = c(1, 0, 0), phi.vec = 0.5, theta.vec = NULL, si
   if (order[3] == 0) {
     thetaMat <- diag(n + burn.in)
   } else {
-    thetaMat <- pars.mat(n + burn.in, theta.vec, norder = order[3])
+    thetaMat <- pars.mat(n + burn.in, theta.vec, norder = order[3], checkinv = FALSE)
   }
 
   out <- solve(phiMat) %*% thetaMat %*% t(thetaMat) %*% t(solve(phiMat)) * sigma2
