@@ -324,6 +324,70 @@ rar <- function(ar, n, h, delta, burnin = 50,
 }
 
 
+#' simulate realizations using ARMA(p, q) and one sustained shift
+#' 
+#' @param n is the length
+#' @param phi is the alpha
+#' @param theta is the mean of poisson mixture
+#' @param sigma2 is the mean of poisson mixture
+#' @param h is the proportion of zeros
+#' @param delta is the start point of shift
+#' @param burnin is the length of the burn-in period
+#' @param burnin is the length of the burn-in period
+#' @export
+#' @examples
+#' nsim <- 100
+#' burnin <- 100
+#' T <- 100
+#' q <- 5
+#' H <- getHMatMT(T, q)
+#' Y <- arima.sim(list(ar = 0.5), n = T)
+#' 
+#' alpha <- c(0.03083069, 0.06242601, 0.09120189)
+#' lambda <- 0.239385
+#' pi <- 0.1453097
+#'
+#' TT <- 183
+#' w <- 28
+#' Y <- rzinpoisinar3(TT + w, alpha, lambda, pi, ceiling(TT / 2) + w, delta = 1, burnin = burnin)
+#' 
+rblasso <- function(n, t, delta, model, leftcensoring = 1, rounding = 0, nsim = 1000) {
+  
+  m <- length(model$Y)
+  p <- dim(model$Phi)[1]
+  ss <- dim(model$Mu)[2]
+  sim <- matrix(NA, nrow = m, ncol = nsim)
+  sim[1:p, ] <- model$Y[1:p]
+    
+  for (i in 1:nsim) {
+    tmpsel <- sample(1:ss, 1)
+    sim[(p + 1):m, i] <- BayesianLASSOMonitoring::simYph2(0, model$Y, model$Z[, tmpsel], model$Phi[, tmpsel],
+                                 model$Mu[, tmpsel], model$sigma2[tmpsel], 1, model$theta[tmpsel], 
+                                 leftcensoring, rounding, 1e-6, 1)
+
+  }
+  
+  rm <- apply(sim, 1, median)
+  vv <- mean((model$Y[-c(1:p)] - rm[-c(1:p)]) ^ 2)
+  
+  tmpsel <- sample(1:nsim, 1)
+  out <- sim[1:n, tmpsel]
+  out[t:n] <- out[t:n] + sqrt(vv) * delta
+  
+  if (leftcensoring == 1) {
+    out[out < 0] <- 0
+  }
+  
+  if (rounding == 1) {
+    out <- round(out)
+  }
+  
+  out
+  
+} 
+
+
+
 #' Caculate the moving averages
 #' 
 #' gets the moving averages
