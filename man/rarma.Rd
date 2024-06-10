@@ -10,9 +10,10 @@ rarma(
   h,
   delta,
   xreg = NULL,
-  nsim = 100,
+  nsim = 1000,
   burnin = 50,
-  lowerbound = 0
+  lowerbound = 0,
+  const = 0.5
 )
 }
 \arguments{

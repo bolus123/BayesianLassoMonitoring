@@ -216,37 +216,47 @@ rzinpoisinar3 <- function(n, alpha, lambda, pi, h, delta, burnin = 100) {
 #' w <- 28
 #' Y <- rzinpoisinar3(TT + w, alpha, lambda, pi, ceiling(TT / 2) + w, delta = 1, burnin = burnin)
 #' 
-rarma <- function(object, n, h, delta, xreg = NULL, nsim = 100, burnin = 50, lowerbound = 0) {
+rarma <- function(object, n, h, delta, xreg = NULL, nsim = 1000, burnin = 50, lowerbound = 0, const = 0.5) {
   
-  order <- c(0, 0, 0)
-  
-  nar <- sum(object$model$phi != 0)
-  nma <- sum(object$model$theta != 0)
-  
-  if (nar > 0) {
-    order[1] <- nar
-    phi.vec <- object$model$phi[which(object$model$phi != 0)]
-  } else {
-    phi.vec <- NULL
-  }
-  
-  if (nma > 0) {
-    order[3] <- nma
-    theta.vec <- object$model$theta[which(object$model$theta != 0)]
-  } else {
-    theta.vec <- NULL
-  }
-  
-  ss <- sigma.mat(100, order = order, phi.vec = phi.vec, theta.vec = theta.vec, sigma2 = object$sigma2, 
-                  burn.in = burnin)
+  ##order <- c(0, 0, 0)
+  ##
+  ##nar <- sum(object$model$phi != 0)
+  ##nma <- sum(object$model$theta != 0)
+  ##
+  ##if (nar > 0) {
+  ##  order[1] <- nar
+  ##  phi.vec <- object$model$phi[which(object$model$phi != 0)]
+  ##} else {
+  ##  phi.vec <- NULL
+  ##}
+  ##
+  ##if (nma > 0) {
+  ##  order[3] <- nma
+  ##  theta.vec <- object$model$theta[which(object$model$theta != 0)]
+  ##} else {
+  ##  theta.vec <- NULL
+  ##}
+  ##
+  ##ss <- sigma.mat(100, order = order, phi.vec = phi.vec, theta.vec = theta.vec, sigma2 = object$sigma2, 
+  ##                burn.in = burnin)
  
+  sim <- matrix(NA, nrow = n, ncol = nsim)
+  
+  for (i in 1:nsim) {
+    sim[, i] <- simulate(object, nsim = n, future = FALSE, xreg = xreg)
+  }
+  
+  fi <- rowMeans(sim)
+  va <- mean(colMeans((sim - fi) ^ 2))
   
   mu <- rep(0, n)
-  mu[h:n] <- mu[h:n] + sqrt(ss$gamma0) * delta
+  mu[h:n] <- mu[h:n] + sqrt(va) * delta
   
-  ts <- simulate(object, nsim = n, future = FALSE, xreg = xreg)
+  #ts <- simulate(object, nsim = n, future = FALSE, xreg = xreg)
   
-  ts <- ts + mu
+  tmpsel <- sample(1:nsim, 1)
+  
+  ts <- sim[, tmpsel] - const + mu
   
   #innov <- rnorm(n, mu, sqrt(object$sigma2))
   #ts <- simulate(object, nsim = n, future = FALSE, innov = innov, xreg = xreg)
