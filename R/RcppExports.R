@@ -63,8 +63,8 @@ getHMatMT <- function(T, q) {
 #' @export
 #' @examples
 #' getHMatSustained(100, 5)
-getHMatSustained <- function(T, q) {
-    .Call(`_BayesianLASSOMonitoring_getHMatSustained`, T, q)
+getHMatSustained <- function(T, q, w) {
+    .Call(`_BayesianLASSOMonitoring_getHMatSustained`, T, q, w)
 }
 
 #' Design Matrix for Isolated Shift (CM)
@@ -76,8 +76,8 @@ getHMatSustained <- function(T, q) {
 #' @export
 #' @examples
 #' getHMatIsolated(100, 5)
-getHMatIsolated <- function(T, q) {
-    .Call(`_BayesianLASSOMonitoring_getHMatIsolated`, T, q)
+getHMatIsolated <- function(T, q, w) {
+    .Call(`_BayesianLASSOMonitoring_getHMatIsolated`, T, q, w)
 }
 
 #' gets a design matrix for gradual shift
@@ -87,8 +87,8 @@ getHMatIsolated <- function(T, q) {
 #' @export
 #' @examples
 #' getHMatGradual(100, 5)
-getHMatGradual <- function(T, q) {
-    .Call(`_BayesianLASSOMonitoring_getHMatGradual`, T, q)
+getHMatGradual <- function(T, q, w) {
+    .Call(`_BayesianLASSOMonitoring_getHMatGradual`, T, q, w)
 }
 
 #' gets a design matrix for Fourier series

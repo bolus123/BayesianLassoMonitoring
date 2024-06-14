@@ -176,8 +176,8 @@ arma::mat getHMatMT(int T, int q) {
 //' @examples
 //' getHMatSustained(100, 5)
 // [[Rcpp::export]]
-arma::mat getHMatSustained(int T, int q) {
-   int w = 1;
+arma::mat getHMatSustained(int T, int q, int w) {
+   ////int w = 1;
   arma::mat tmp(T, T);
    tmp.ones();
   arma::mat L =arma::trimatl(tmp);
@@ -210,8 +210,8 @@ arma::mat getHMatSustained(int T, int q) {
 //' @examples
 //' getHMatIsolated(100, 5)
 // [[Rcpp::export]]
-arma::mat getHMatIsolated(int T, int q) {
-   int w = 1;
+arma::mat getHMatIsolated(int T, int q, int w) {
+   ////int w = 1;
   arma::mat tmp(T, T);
    
    int i;
@@ -246,9 +246,9 @@ arma::mat getHMatIsolated(int T, int q) {
 //' @examples
 //' getHMatGradual(100, 5)
 // [[Rcpp::export]]
-arma::mat getHMatGradual(int T, int q) {
+arma::mat getHMatGradual(int T, int q, int w) {
   arma::mat tmp(T, T);
-   int w = 1;
+   ////int w = 1;
    int i;
    for (i = 0; i < T; i++) {
      tmp.diag(-i).fill(i);

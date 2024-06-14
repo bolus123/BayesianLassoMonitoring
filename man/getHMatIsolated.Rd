@@ -4,7 +4,7 @@
 \alias{getHMatIsolated}
 \title{Design Matrix for Isolated Shift (CM)}
 \usage{
-getHMatIsolated(T, q)
+getHMatIsolated(T, q, w)
 }
 \arguments{
 \item{T}{is length of a process.}

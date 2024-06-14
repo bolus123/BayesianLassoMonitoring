@@ -4,7 +4,7 @@
 \alias{getHMatSustained}
 \title{Design Matrix for Sustained Shift (CM)}
 \usage{
-getHMatSustained(T, q)
+getHMatSustained(T, q, w)
 }
 \arguments{
 \item{T}{is length of a process.}

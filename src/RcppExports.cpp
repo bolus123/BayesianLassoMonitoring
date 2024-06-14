@@ -75,38 +75,41 @@ BEGIN_RCPP
 END_RCPP
 }
 // getHMatSustained
-arma::mat getHMatSustained(int T, int q);
-RcppExport SEXP _BayesianLASSOMonitoring_getHMatSustained(SEXP TSEXP, SEXP qSEXP) {
+arma::mat getHMatSustained(int T, int q, int w);
+RcppExport SEXP _BayesianLASSOMonitoring_getHMatSustained(SEXP TSEXP, SEXP qSEXP, SEXP wSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type T(TSEXP);
     Rcpp::traits::input_parameter< int >::type q(qSEXP);
-    rcpp_result_gen = Rcpp::wrap(getHMatSustained(T, q));
+    Rcpp::traits::input_parameter< int >::type w(wSEXP);
+    rcpp_result_gen = Rcpp::wrap(getHMatSustained(T, q, w));
     return rcpp_result_gen;
 END_RCPP
 }
 // getHMatIsolated
-arma::mat getHMatIsolated(int T, int q);
-RcppExport SEXP _BayesianLASSOMonitoring_getHMatIsolated(SEXP TSEXP, SEXP qSEXP) {
+arma::mat getHMatIsolated(int T, int q, int w);
+RcppExport SEXP _BayesianLASSOMonitoring_getHMatIsolated(SEXP TSEXP, SEXP qSEXP, SEXP wSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type T(TSEXP);
     Rcpp::traits::input_parameter< int >::type q(qSEXP);
-    rcpp_result_gen = Rcpp::wrap(getHMatIsolated(T, q));
+    Rcpp::traits::input_parameter< int >::type w(wSEXP);
+    rcpp_result_gen = Rcpp::wrap(getHMatIsolated(T, q, w));
     return rcpp_result_gen;
 END_RCPP
 }
 // getHMatGradual
-arma::mat getHMatGradual(int T, int q);
-RcppExport SEXP _BayesianLASSOMonitoring_getHMatGradual(SEXP TSEXP, SEXP qSEXP) {
+arma::mat getHMatGradual(int T, int q, int w);
+RcppExport SEXP _BayesianLASSOMonitoring_getHMatGradual(SEXP TSEXP, SEXP qSEXP, SEXP wSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type T(TSEXP);
     Rcpp::traits::input_parameter< int >::type q(qSEXP);
-    rcpp_result_gen = Rcpp::wrap(getHMatGradual(T, q));
+    Rcpp::traits::input_parameter< int >::type w(wSEXP);
+    rcpp_result_gen = Rcpp::wrap(getHMatGradual(T, q, w));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -805,9 +808,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BayesianLASSOMonitoring_getGMat", (DL_FUNC) &_BayesianLASSOMonitoring_getGMat, 2},
     {"_BayesianLASSOMonitoring_getPhiMat", (DL_FUNC) &_BayesianLASSOMonitoring_getPhiMat, 2},
     {"_BayesianLASSOMonitoring_getHMatMT", (DL_FUNC) &_BayesianLASSOMonitoring_getHMatMT, 2},
-    {"_BayesianLASSOMonitoring_getHMatSustained", (DL_FUNC) &_BayesianLASSOMonitoring_getHMatSustained, 2},
-    {"_BayesianLASSOMonitoring_getHMatIsolated", (DL_FUNC) &_BayesianLASSOMonitoring_getHMatIsolated, 2},
-    {"_BayesianLASSOMonitoring_getHMatGradual", (DL_FUNC) &_BayesianLASSOMonitoring_getHMatGradual, 2},
+    {"_BayesianLASSOMonitoring_getHMatSustained", (DL_FUNC) &_BayesianLASSOMonitoring_getHMatSustained, 3},
+    {"_BayesianLASSOMonitoring_getHMatIsolated", (DL_FUNC) &_BayesianLASSOMonitoring_getHMatIsolated, 3},
+    {"_BayesianLASSOMonitoring_getHMatGradual", (DL_FUNC) &_BayesianLASSOMonitoring_getHMatGradual, 3},
     {"_BayesianLASSOMonitoring_getXSeasonalityFS", (DL_FUNC) &_BayesianLASSOMonitoring_getXSeasonalityFS, 3},
     {"_BayesianLASSOMonitoring_GibbsRFLSMcpp", (DL_FUNC) &_BayesianLASSOMonitoring_GibbsRFLSMcpp, 18},
     {"_BayesianLASSOMonitoring_GibbsRFLSMUpdatecpp", (DL_FUNC) &_BayesianLASSOMonitoring_GibbsRFLSMUpdatecpp, 21},

@@ -4,7 +4,7 @@
 \alias{getHMatGradual}
 \title{gets a design matrix for gradual shift}
 \usage{
-getHMatGradual(T, q)
+getHMatGradual(T, q, w)
 }
 \arguments{
 \item{T}{is length of a process.}
