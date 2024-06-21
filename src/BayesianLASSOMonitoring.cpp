@@ -4355,7 +4355,7 @@ arma::colvec simYph2Alt(int h, arma::colvec Y, arma::colvec Z, arma::colvec Phi,
     }
     
     if ((leftcensoring == 1) || (rounding == 1)) {
-      Yph2 = Yph2 - Z.subvec(q, nn - 1);
+      Yph2 = Yph2 - Z.rows(q, nn - 1);
     }
    
     if ((leftcensoring == 1)) {
