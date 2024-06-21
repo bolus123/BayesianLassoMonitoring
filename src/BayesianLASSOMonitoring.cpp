@@ -4328,7 +4328,7 @@ arma::colvec simYph2Alt(int h, arma::colvec Y, arma::colvec Z, arma::colvec Phi,
                      int updateYJ, double theta, int leftcensoring, int rounding, double eps, int backtr) {
   
   int q = Phi.n_rows;
-  int nn = Y.n_cols;
+  int nn = Y.n_rows;
   
   arma::colvec Yyjph1 = Y;
   if ((leftcensoring == 1) || (rounding == 1)) {
