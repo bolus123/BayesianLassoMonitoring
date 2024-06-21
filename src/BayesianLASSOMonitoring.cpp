@@ -4327,6 +4327,9 @@ arma::colvec simYph2(int h, arma::colvec Y, arma::colvec Z, arma::colvec Phi,arm
 arma::colvec simYph2Alt(int h, arma::colvec Y, arma::colvec Z, arma::colvec Phi,arma::colvec Mu, double sigma2, 
                      int updateYJ, double theta, int leftcensoring, int rounding, double eps, int backtr) {
   
+  int q = Phi.n_cols;
+  int nn = Y.n_cols;
+  
   arma::colvec Yyjph1 = Y;
   if ((leftcensoring == 1) || (rounding == 1)) {
     Yyjph1 = Yyjph1 + Z;
@@ -4352,7 +4355,7 @@ arma::colvec simYph2Alt(int h, arma::colvec Y, arma::colvec Z, arma::colvec Phi,
     }
     
     if ((leftcensoring == 1) || (rounding == 1)) {
-      Yph2 = Yph2 - Z;
+      Yph2 = Yph2 - Z.subvec(q, nn - 1);
     }
    
     if ((leftcensoring == 1)) {
