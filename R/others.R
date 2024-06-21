@@ -247,7 +247,7 @@ rarma <- function(object, n, h, delta, xreg = NULL, nsim = 1000, burnin = 50, lo
   }
   
   fi <- rowMeans(sim)
-  va <- mean(colMeans((sim - fi) ^ 2))
+  va <- mean((object$x[1:n] - fi) ^ 2)
   
   mu <- rep(0, n)
   mu[h:n] <- mu[h:n] + sqrt(va) * delta
