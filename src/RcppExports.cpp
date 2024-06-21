@@ -764,6 +764,28 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// simYph2Alt
+arma::colvec simYph2Alt(int h, arma::colvec Y, arma::colvec Z, arma::colvec Phi, arma::colvec Mu, double sigma2, int updateYJ, double theta, int leftcensoring, int rounding, double eps, int backtr);
+RcppExport SEXP _BayesianLASSOMonitoring_simYph2Alt(SEXP hSEXP, SEXP YSEXP, SEXP ZSEXP, SEXP PhiSEXP, SEXP MuSEXP, SEXP sigma2SEXP, SEXP updateYJSEXP, SEXP thetaSEXP, SEXP leftcensoringSEXP, SEXP roundingSEXP, SEXP epsSEXP, SEXP backtrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type h(hSEXP);
+    Rcpp::traits::input_parameter< arma::colvec >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< arma::colvec >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< arma::colvec >::type Phi(PhiSEXP);
+    Rcpp::traits::input_parameter< arma::colvec >::type Mu(MuSEXP);
+    Rcpp::traits::input_parameter< double >::type sigma2(sigma2SEXP);
+    Rcpp::traits::input_parameter< int >::type updateYJ(updateYJSEXP);
+    Rcpp::traits::input_parameter< double >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< int >::type leftcensoring(leftcensoringSEXP);
+    Rcpp::traits::input_parameter< int >::type rounding(roundingSEXP);
+    Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
+    Rcpp::traits::input_parameter< int >::type backtr(backtrSEXP);
+    rcpp_result_gen = Rcpp::wrap(simYph2Alt(h, Y, Z, Phi, Mu, sigma2, updateYJ, theta, leftcensoring, rounding, eps, backtr));
+    return rcpp_result_gen;
+END_RCPP
+}
 // simYyjph2NoY
 arma::colvec simYyjph2NoY(int h, arma::colvec Yyjph1, arma::colvec Phi, arma::colvec Mu, double sigma2);
 RcppExport SEXP _BayesianLASSOMonitoring_simYyjph2NoY(SEXP hSEXP, SEXP Yyjph1SEXP, SEXP PhiSEXP, SEXP MuSEXP, SEXP sigma2SEXP) {
@@ -844,6 +866,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BayesianLASSOMonitoring_simYph1", (DL_FUNC) &_BayesianLASSOMonitoring_simYph1, 6},
     {"_BayesianLASSOMonitoring_simYyjph2", (DL_FUNC) &_BayesianLASSOMonitoring_simYyjph2, 5},
     {"_BayesianLASSOMonitoring_simYph2", (DL_FUNC) &_BayesianLASSOMonitoring_simYph2, 12},
+    {"_BayesianLASSOMonitoring_simYph2Alt", (DL_FUNC) &_BayesianLASSOMonitoring_simYph2Alt, 12},
     {"_BayesianLASSOMonitoring_simYyjph2NoY", (DL_FUNC) &_BayesianLASSOMonitoring_simYyjph2NoY, 5},
     {"_BayesianLASSOMonitoring_simYph2NoY", (DL_FUNC) &_BayesianLASSOMonitoring_simYph2NoY, 12},
     {NULL, NULL, 0}

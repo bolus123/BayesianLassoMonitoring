@@ -335,6 +335,18 @@ simYph2 <- function(h, Y, Z, Phi, Mu, sigma2, updateYJ, theta, leftcensoring, ro
 #' @export
 #' @examples
 #' rtwosegnorm(10, 1, 2, 0, 1)
+simYph2Alt <- function(h, Y, Z, Phi, Mu, sigma2, updateYJ, theta, leftcensoring, rounding, eps, backtr) {
+    .Call(`_BayesianLASSOMonitoring_simYph2Alt`, h, Y, Z, Phi, Mu, sigma2, updateYJ, theta, leftcensoring, rounding, eps, backtr)
+}
+
+#' Absolute-value-constrained normal distribution
+#' 
+#' gets a sample from a normal distribution whose absolute observations are constrained.
+#'
+#' @param n is sample size.
+#' @export
+#' @examples
+#' rtwosegnorm(10, 1, 2, 0, 1)
 simYyjph2NoY <- function(h, Yyjph1, Phi, Mu, sigma2) {
     .Call(`_BayesianLASSOMonitoring_simYyjph2NoY`, h, Yyjph1, Phi, Mu, sigma2)
 }

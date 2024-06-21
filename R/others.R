@@ -246,8 +246,8 @@ rarma <- function(object, n, h, delta, xreg = NULL, nsim = 1000, burnin = 50, lo
     sim[, i] <- simulate(object, nsim = n, future = FALSE, xreg = xreg)
   }
   
-  fi <- rowMeans(sim)
-  va <- mean((object$x[1:n] - fi) ^ 2)
+  fi <- object$fitted
+  va <- mean((object$x[1:n] - fi[1:n]) ^ 2)
   
   mu <- rep(0, n)
   mu[h:n] <- mu[h:n] + sqrt(va) * delta
@@ -263,6 +263,163 @@ rarma <- function(object, n, h, delta, xreg = NULL, nsim = 1000, burnin = 50, lo
 
   ts[which(ts < lowerbound)] <- lowerbound
   ts
+}
+
+
+#' simulate realizations using ARMA(p, q) and one sustained shift
+#' 
+#' @param n is the length
+#' @param phi is the alpha
+#' @param theta is the mean of poisson mixture
+#' @param sigma2 is the mean of poisson mixture
+#' @param h is the proportion of zeros
+#' @param delta is the start point of shift
+#' @param burnin is the length of the burn-in period
+#' @param burnin is the length of the burn-in period
+#' @export
+#' @examples
+#' nsim <- 100
+#' burnin <- 100
+#' T <- 100
+#' q <- 5
+#' H <- getHMatMT(T, q)
+#' Y <- arima.sim(list(ar = 0.5), n = T)
+#' 
+#' alpha <- c(0.03083069, 0.06242601, 0.09120189)
+#' lambda <- 0.239385
+#' pi <- 0.1453097
+#'
+#' TT <- 183
+#' w <- 28
+#' Y <- rzinpoisinar3(TT + w, alpha, lambda, pi, ceiling(TT / 2) + w, delta = 1, burnin = burnin)
+#' 
+rarmaAlt <- function(object, n, 
+                     h1 = NULL, h2 = NULL, h3 = NULL, 
+                     delta1 = 0, delta2 = 0, delta3 = 0, 
+                     xreg = NULL, burnin = 50, lowerbound = 0, const = 0.5) {
+  
+  ##order <- c(0, 0, 0)
+  ##
+  ##nar <- sum(object$model$phi != 0)
+  ##nma <- sum(object$model$theta != 0)
+  ##
+  ##if (nar > 0) {
+  ##  order[1] <- nar
+  ##  phi.vec <- object$model$phi[which(object$model$phi != 0)]
+  ##} else {
+  ##  phi.vec <- NULL
+  ##}
+  ##
+  ##if (nma > 0) {
+  ##  order[3] <- nma
+  ##  theta.vec <- object$model$theta[which(object$model$theta != 0)]
+  ##} else {
+  ##  theta.vec <- NULL
+  ##}
+  ##
+  ##ss <- sigma.mat(100, order = order, phi.vec = phi.vec, theta.vec = theta.vec, sigma2 = object$sigma2, 
+  ##                burn.in = burnin)
+ 
+  #sim <- matrix(NA, nrow = n, ncol = nsim)
+  
+  #for (i in 1:nsim) {
+  #  sim[, i] <- simulate(object, nsim = n, future = FALSE, xreg = xreg)
+  #}
+  
+  fi <- object$fitted
+  va <- mean((object$x[1:n] - fi[1:n]) ^ 2)
+  
+  n1 <- length(h1)
+  n2 <- length(h2)
+  n3 <- length(h3)
+  
+  mu <- rep(0, n)
+  
+  if (n1 > 0) {
+    for (i in 1:n1) {
+      mu[h1[i]] <- mu[h1[i]] + sqrt(va) * delta1
+    }
+  }
+  
+  if (n2 > 0) {
+    for (i in 1:n2) {
+      mu[h2[i]:n] <- mu[h2[i]:n] + sqrt(va) * delta2
+    }
+  }
+  
+  if (n3 > 0) {
+    for (i in 1:n3) {
+      mu[h3[i]:n] <- mu[h3[i]:n] + sqrt(va) * delta3 * (h3[i]:n - h3[i] + 1)
+    }
+  }
+  
+  
+  #ts <- simulate(object, nsim = n, future = FALSE, xreg = xreg)
+  
+  #tmpsel <- sample(1:nsim, 1)
+  
+  ts <- simulate(object, nsim = n, future = FALSE, xreg = xreg[1:n, ]) - const + mu
+  
+  #innov <- rnorm(n, mu, sqrt(object$sigma2))
+  #ts <- simulate(object, nsim = n, future = FALSE, innov = innov, xreg = xreg)
+
+  ts[which(ts < lowerbound)] <- lowerbound
+  ts
+}
+
+#' simulate realizations using ARMA(p, q) and one sustained shift
+#'
+#' @param n is the length
+#' @param phi is the alpha
+#' @param theta is the mean of poisson mixture
+#' @param sigma2 is the mean of poisson mixture
+#' @param h is the proportion of zeros
+#' @param delta is the start point of shift
+#' @param burnin is the length of the burn-in period
+#' @param burnin is the length of the burn-in period
+#' @export
+#' @examples
+#' nsim <- 100
+#' burnin <- 100
+#' T <- 100
+#' q <- 5
+#' H <- getHMatMT(T, q)
+#' Y <- arima.sim(list(ar = 0.5), n = T)
+#'
+#' alpha <- c(0.03083069, 0.06242601, 0.09120189)
+#' lambda <- 0.239385
+#' pi <- 0.1453097
+#'
+#' TT <- 183
+#' w <- 28
+#' Y <- rzinpoisinar3(TT + w, alpha, lambda, pi, ceiling(TT / 2) + w, delta = 1, burnin = burnin)
+#' 
+readrsp <- function(x, lmin = 14, alpha = 0.05) {
+  res <- dfphase1::rsp(x, lmin = lmin, alpha = alpha)
+  sigmean <- res$p[1] < 0.05
+  sigvar <- res$p[2] < 0.05
+  sig <- (sigmean + sigvar) > 0
+  dd <- diff(res$fit)
+  
+  dd1 <- 0
+  dd2 <- 0
+  dd3 <- 0
+  
+  if (length(which(dd[, 1] > 0)) > 0) {
+    dd1 <- which(dd[, 1] > 0) + 1
+  }
+  
+  if (length(which(dd[, 2] > 0)) > 0) {
+    dd2 <- which(dd[, 2] > 0) + 1
+  }
+  
+  if ((length(which(dd[, 1] > 0)) + length(which(dd[, 2] > 0))) > 0) {
+    dd3 <- sort(unique(c(dd1, dd2)))
+  }
+  
+  out <- list("sigmean" = sigmean, "sigvar" = sigvar, "sig" = sig, 
+              "outliermean" = dd1, "outliervar" = dd2, "outlier" = dd3)
+  out
 }
 
 
@@ -397,6 +554,185 @@ rblasso <- function(n, t, delta, model, leftcensoring = 1, rounding = 0, nsim = 
 } 
 
 
+#' simulate realizations using ARMA(p, q) and one sustained shift
+#' 
+#' @param n is the length
+#' @param phi is the alpha
+#' @param theta is the mean of poisson mixture
+#' @param sigma2 is the mean of poisson mixture
+#' @param h is the proportion of zeros
+#' @param delta is the start point of shift
+#' @param burnin is the length of the burn-in period
+#' @param burnin is the length of the burn-in period
+#' @export
+#' @examples
+#' nsim <- 100
+#' burnin <- 100
+#' T <- 100
+#' q <- 5
+#' H <- getHMatMT(T, q)
+#' Y <- arima.sim(list(ar = 0.5), n = T)
+#' 
+#' alpha <- c(0.03083069, 0.06242601, 0.09120189)
+#' lambda <- 0.239385
+#' pi <- 0.1453097
+#'
+#' TT <- 183
+#' w <- 28
+#' Y <- rzinpoisinar3(TT + w, alpha, lambda, pi, ceiling(TT / 2) + w, delta = 1, burnin = burnin)
+#' 
+rblassoAlt <- function(model, n, 
+                    h1 = NULL, h2 = NULL, h3 = NULL, 
+                    delta1 = 0, delta2 = 0, delta3 = 0, 
+                    leftcensoring = 1, rounding = 0, nsim = 1000) {
+  
+  m <- length(model$Y)
+  p <- dim(model$Phi)[1]
+  ss <- dim(model$Mu)[2]
+  sim <- matrix(NA, nrow = m, ncol = nsim)
+  sim[1:p, ] <- model$Y[1:p]
+    
+  for (i in 1:nsim) {
+    tmpsel <- sample(1:ss, 1)
+    sim[(p + 1):m, i] <- BayesianLASSOMonitoring::simYph2(0, model$Y, model$Z[, tmpsel], model$Phi[, tmpsel],
+                                 model$Mu[, tmpsel], model$sigma2[tmpsel], 1, model$theta[tmpsel], 
+                                 leftcensoring, rounding, 1e-6, 1)
+
+  }
+  
+  rm <- apply(sim, 1, median)
+  vv <- mean((model$Y[-c(1:p)] - rm[-c(1:p)]) ^ 2)
+  
+  tmpsel <- sample(1:nsim, 1)
+  out <- sim[1:n, tmpsel]
+  
+  n1 <- length(h1)
+  n2 <- length(h2)
+  n3 <- length(h3)
+  
+  mu <- rep(0, n)
+  
+  if (n1 > 0) {
+    for (i in 1:n1) {
+      mu[h1[i]] <- mu[h1[i]] + sqrt(vv) * delta1
+    }
+  }
+  
+  if (n2 > 0) {
+    for (i in 1:n2) {
+      mu[h2[i]:n] <- mu[h2[i]:n] + sqrt(vv) * delta2
+    }
+  }
+  
+  if (n3 > 0) {
+    for (i in 1:n3) {
+      mu[h3[i]:n] <- mu[h3[i]:n] + sqrt(vv) * delta3 * (h3[i]:n - h3[i] + 1)
+    }
+  }
+  
+  out <- out + mu
+  
+  if (leftcensoring == 1) {
+    out[out < 0] <- 0
+  }
+  
+  if (rounding == 1) {
+    out <- round(out)
+  }
+  
+  out
+  
+} 
+
+#' simulate realizations using ARMA(p, q) and one sustained shift
+#' 
+#' @param n is the length
+#' @param phi is the alpha
+#' @param theta is the mean of poisson mixture
+#' @param sigma2 is the mean of poisson mixture
+#' @param h is the proportion of zeros
+#' @param delta is the start point of shift
+#' @param burnin is the length of the burn-in period
+#' @param burnin is the length of the burn-in period
+#' @export
+#' @examples
+#' nsim <- 100
+#' burnin <- 100
+#' T <- 100
+#' q <- 5
+#' H <- getHMatMT(T, q)
+#' Y <- arima.sim(list(ar = 0.5), n = T)
+#' 
+#' alpha <- c(0.03083069, 0.06242601, 0.09120189)
+#' lambda <- 0.239385
+#' pi <- 0.1453097
+#'
+#' TT <- 183
+#' w <- 28
+#' Y <- rzinpoisinar3(TT + w, alpha, lambda, pi, ceiling(TT / 2) + w, delta = 1, burnin = burnin)
+#' 
+rblassoAlt1 <- function(model, n, 
+                    h1 = NULL, h2 = NULL, h3 = NULL, 
+                    delta1 = 0, delta2 = 0, delta3 = 0, 
+                    leftcensoring = 1, rounding = 0, nsim = 1000) {
+  
+  m <- length(model$Y)
+  p <- dim(model$Phi)[1]
+  ss <- dim(model$Mu)[2]
+  sim <- matrix(NA, nrow = m, ncol = nsim)
+  sim[1:p, ] <- model$Y[1:p]
+    
+  for (i in 1:nsim) {
+    tmpsel <- sample(1:ss, 1)
+    sim[(p + 1):m, i] <- BayesianLASSOMonitoring::simYph2Alt(0, model$Y, model$Z[, tmpsel], model$Phi[, tmpsel],
+                                 model$Mu[, tmpsel], model$sigma2[tmpsel], 1, model$theta[tmpsel], 
+                                 leftcensoring, rounding, 1e-6, 1)
+
+  }
+  
+  rm <- apply(sim, 1, median)
+  vv <- mean((model$Y[-c(1:p)] - rm[-c(1:p)]) ^ 2)
+  
+  tmpsel <- sample(1:nsim, 1)
+  out <- sim[1:n, tmpsel]
+  
+  n1 <- length(h1)
+  n2 <- length(h2)
+  n3 <- length(h3)
+  
+  mu <- rep(0, n)
+  
+  if (n1 > 0) {
+    for (i in 1:n1) {
+      mu[h1[i]] <- mu[h1[i]] + sqrt(vv) * delta1
+    }
+  }
+  
+  if (n2 > 0) {
+    for (i in 1:n2) {
+      mu[h2[i]:n] <- mu[h2[i]:n] + sqrt(vv) * delta2
+    }
+  }
+  
+  if (n3 > 0) {
+    for (i in 1:n3) {
+      mu[h3[i]:n] <- mu[h3[i]:n] + sqrt(vv) * delta3 * (h3[i]:n - h3[i] + 1)
+    }
+  }
+  
+  out <- out + mu
+  
+  if (leftcensoring == 1) {
+    out[out < 0] <- 0
+  }
+  
+  if (rounding == 1) {
+    out <- round(out)
+  }
+  
+  out
+  
+} 
 
 #' Caculate the moving averages
 #' 
