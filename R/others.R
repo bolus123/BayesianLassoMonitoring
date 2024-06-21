@@ -686,7 +686,7 @@ rblassoAlt1 <- function(model, n,
     tmpsel <- sample(1:ss, 1)
     sim[(p + 1):m, i] <- BayesianLASSOMonitoring::simYph2Alt(0, model$Y, model$Z[, tmpsel], model$Phi[, tmpsel],
                                  model$Mu[, tmpsel], model$sigma2[tmpsel], 1, model$theta[tmpsel], 
-                                 leftcensoring, rounding, 1e-6, 1)
+                                 0, 0, 1e-6, 1)
 
   }
   

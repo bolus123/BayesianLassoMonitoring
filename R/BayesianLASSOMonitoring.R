@@ -1583,10 +1583,12 @@ Ph1MultipleTesting.GammaZNBC <- function(model, w = 7, FAP0 = 0.05, method = 'ho
 #' 
 #' 
 #' @export
-Ph1MultipleTesting.GammaNormBC <- function(model, w = 7, FAP0 = 0.05, method = "bonferroni", side = "right-sided") {
+Ph1MultipleTesting.GammaNormBC <- function(model, w = 7, FAP0 = 0.05, method = "bonferroni", side = "right-sided",
+                                           leftcensoring = 1, rounding = 0) {
   
   n <- length(model$Y)
-  q <- dim(model$Phi)[2]
+  q <- dim(model$Phi)[1]
+  ss0 <- dim(model$Phi)[2]
   
   grand.sig <- 0
   
@@ -1630,25 +1632,37 @@ Ph1MultipleTesting.GammaNormBC <- function(model, w = 7, FAP0 = 0.05, method = "
   grand.sig <- sum(sig) > 0
   
   tmpsig <- model$H %*% sig
-  tmpsig[tmpsig > 1] <- 1
-  tmpsig <- diff(model$H %*% sig)
-  tmpsig[tmpsig < 0] <- 0
-  tmpsig <- c(0, tmpsig)
+  tmpsig <- c(0, diff(tmpsig))
+  tmpsel <- which(tmpsig >= 1)
   
-  tmpsel <- which(tmpsig == 1)
+  tmpsig[tmpsig > 1] <- 1
+  tmpsig[tmpsig < 0] <- 0
+  #tmpsig <- c(0, tmpsig)
+  tmpsig0 <- tmpsig
+  
+  #tmpsel0 <- which(tmpsig0 == 1)
+  
+  #tmpsel <- which(tmpsig0 == 1)
   nsel <- length(tmpsel)
   
   if (nsel > 0) {
     for (i in 1:nsel) {
-      tmpsig[tmpsel[i]:(tmpsel[i] + w - 1)] <- 1
+      tmpsig[tmpsel[i]:min(tmpsel[i] + w - 1, n)] <- 1
     }
   }
   
+  posi <- NULL
+  
+  if (nsel > 0) {
+    for (i in 1:nsel) {
+      posi <- c(posi, tmpsel[i] + ceiling(w / 2) - 1)
+    }
+  }
   
   list("grandsig" = grand.sig, "cs" = cs, 
        "sig" = tmpsig, 
        "parsig" = sig,
-       "pvalue" = pvalue, "adj.pvalue" = adj.pvalue)
+       "pvalue" = pvalue, "adj.pvalue" = adj.pvalue, "posi" = posi)
   
 }
 
