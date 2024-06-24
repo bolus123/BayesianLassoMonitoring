@@ -1651,18 +1651,18 @@ Ph1MultipleTesting.GammaNormBC <- function(model, w = 7, FAP0 = 0.05, method = "
     }
   }
   
-  posi <- NULL
+  cp <- NULL
   
   if (nsel > 0) {
     for (i in 1:nsel) {
-      posi <- c(posi, tmpsel[i] + ceiling(w / 2) - 1)
+      cp <- c(cp, tmpsel[i] + ceiling(w / 2) - 1)
     }
   }
   
   list("grandsig" = grand.sig, "cs" = cs, 
        "sig" = tmpsig, 
        "parsig" = sig,
-       "pvalue" = pvalue, "adj.pvalue" = adj.pvalue, "posi" = posi)
+       "pvalue" = pvalue, "adj.pvalue" = adj.pvalue, "cp" = cp)
   
 }
 
