@@ -1818,7 +1818,8 @@ arma::colvec invboxcoxtr(arma::colvec Ybc, double theta) {
   
 }
 
-//' Absolute-value-constrained normal distribution
+
+//' Absolute-value-constrained normal distribution222
 //' 
 //' gets a sample from a normal distribution whose absolute observations are constrained.
 //'
@@ -1849,7 +1850,7 @@ arma::colvec invyeojohnsontr(arma::colvec Yyj, double theta, double eps) {
 } 
 
 
-//' Absolute-value-constrained normal distribution
+//' Absolute-value-constrained normal distribution111
 //' 
 //' gets a sample from a normal distribution whose absolute observations are constrained.
 //'
