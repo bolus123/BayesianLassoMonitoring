@@ -1631,38 +1631,24 @@ Ph1MultipleTesting.GammaNormBC <- function(model, w = 7, FAP0 = 0.05, method = "
   sig <- adj.pvalue <= FAP0
   grand.sig <- sum(sig) > 0
   
-  tmpsig <- model$H %*% sig
-  tmpsig <- c(0, diff(tmpsig))
-  tmpsel <- which(tmpsig >= 1)
   
-  tmpsig[tmpsig > 1] <- 1
-  tmpsig[tmpsig < 0] <- 0
-  #tmpsig <- c(0, tmpsig)
-  tmpsig0 <- tmpsig
+  signal <- NULL
+
+  for (i in 1:length(sig)) {
   
-  #tmpsel0 <- which(tmpsig0 == 1)
-  
-  #tmpsel <- which(tmpsig0 == 1)
-  nsel <- length(tmpsel)
-  
-  if (nsel > 0) {
-    for (i in 1:nsel) {
-      tmpsig[tmpsel[i]:min(tmpsel[i] + w - 1, n)] <- 1
+    if (sig[i] == TRUE) {
+      signal <- c(signal, head(which(model$H[, i] > 0), 1) + floor(w / 2))
     }
+  
   }
   
-  cp <- NULL
-  
-  if (nsel > 0) {
-    for (i in 1:nsel) {
-      cp <- c(cp, tmpsel[i] + ceiling(w / 2) - 1)
-    }
-  }
+  tmpsig <- rep(0, dim(model$H)[1])
+  tmpsig[signal] <- 1
   
   list("grandsig" = grand.sig, "cs" = cs, 
        "sig" = tmpsig, 
        "parsig" = sig,
-       "pvalue" = pvalue, "adj.pvalue" = adj.pvalue, "cp" = cp)
+       "pvalue" = pvalue, "adj.pvalue" = adj.pvalue, "cp" = signal)
   
 }
 
