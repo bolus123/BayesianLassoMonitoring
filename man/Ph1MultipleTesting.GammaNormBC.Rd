@@ -9,7 +9,9 @@ Ph1MultipleTesting.GammaNormBC(
   w = 7,
   FAP0 = 0.05,
   method = "bonferroni",
-  side = "right-sided"
+  side = "right-sided",
+  leftcensoring = 1,
+  rounding = 0
 )
 }
 \arguments{
