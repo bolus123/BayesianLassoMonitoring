@@ -131,7 +131,7 @@ invboxcoxtr <- function(Ybc, theta) {
     .Call(`_BayesianLASSOMonitoring_invboxcoxtr`, Ybc, theta)
 }
 
-#' Absolute-value-constrained normal distribution
+#' Absolute-value-constrained normal distribution222
 #' 
 #' gets a sample from a normal distribution whose absolute observations are constrained.
 #'
@@ -143,7 +143,7 @@ invyeojohnsontr <- function(Yyj, theta, eps) {
     .Call(`_BayesianLASSOMonitoring_invyeojohnsontr`, Yyj, theta, eps)
 }
 
-#' Absolute-value-constrained normal distribution
+#' Absolute-value-constrained normal distribution111
 #' 
 #' gets a sample from a normal distribution whose absolute observations are constrained.
 #'

@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{yeojohnsontr}
 \alias{yeojohnsontr}
-\title{Absolute-value-constrained normal distribution}
+\title{Absolute-value-constrained normal distribution111}
 \usage{
 yeojohnsontr(Y, theta, eps)
 }

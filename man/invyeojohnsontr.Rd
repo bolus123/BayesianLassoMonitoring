@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{invyeojohnsontr}
 \alias{invyeojohnsontr}
-\title{Absolute-value-constrained normal distribution}
+\title{Absolute-value-constrained normal distribution222}
 \usage{
 invyeojohnsontr(Yyj, theta, eps)
 }
