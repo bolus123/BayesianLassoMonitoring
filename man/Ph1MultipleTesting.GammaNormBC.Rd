@@ -2,7 +2,7 @@
 % Please edit documentation in R/BayesianLASSOMonitoring.R
 \name{Ph1MultipleTesting.GammaNormBC}
 \alias{Ph1MultipleTesting.GammaNormBC}
-\title{Bayesian LASSO Phase I Monitoring}
+\title{Bayesian LASSO Phase I Monitoring 11}
 \usage{
 Ph1MultipleTesting.GammaNormBC(
   model,

@@ -1571,7 +1571,7 @@ Ph1MultipleTesting.GammaZNBC <- function(model, w = 7, FAP0 = 0.05, method = 'ho
 }
 
 
-#' Bayesian LASSO Phase I Monitoring
+#' Bayesian LASSO Phase I Monitoring 11
 #' 
 #' gets a posterior sample using Gibbs sampling for Random Flexible Level Shift Model
 #' @param model is model.
