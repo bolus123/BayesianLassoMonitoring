@@ -4364,24 +4364,34 @@ arma::colvec simYph2Alt(int h, arma::colvec Y, arma::colvec Z, arma::colvec Phi,
   
   arma::uvec ind0;
   
+  int i;
+  
   if (backtr == 1) { 
   
     if (updateYJ == 1) {
       Yph2 = invyeojohnsontr(Yph2, theta, eps); 
-    //Rcpp::Rcout << 3 << std::endl;
+      //Rcpp::Rcout << 3 << std::endl;
     }
     
     if ((leftcensoring == 1) || (rounding == 1)) {
-      Yph2 = Yph2 - Z.rows(q, nn - 1);
+      
+      for (i = 0; i < nn; i++) {
+        Yph2(i) = Yph2(i) - Z(i);
+      }
+      
+      //Yph2 = Yph2 - Z.rows(q, nn - 1);
+      //Rcpp::Rcout << 4 << std::endl;
     }
    
     if ((leftcensoring == 1)) {
       ind0 =arma::find(Yph2 <= 0.0); 
       Yph2(ind0).fill(0.0);
+      //Rcpp::Rcout << 5 << std::endl;
     }
     
     if ((rounding == 1)) {
       Yph2 = arma::round(Yph2);
+      //Rcpp::Rcout << 6 << std::endl;
     } 
   }
   
